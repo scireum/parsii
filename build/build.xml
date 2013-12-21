@@ -1,0 +1,25 @@
+<project name="parsii">
+    <target name="make">
+        <mkdir dir="dist" />
+        <delete>
+            <fileset dir="dist">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+        
+        <javac compiler="javac1.6"
+               includeantruntime="false"
+               encoding="UTF-8"
+               debug="on"
+               destdir="dist">
+            <src path="../src"/>
+            <compilerarg value="-Xlint:deprecation"/>
+        </javac>
+
+        <tstamp>
+            <format property="productionCode" pattern="yyww" />
+        </tstamp>
+
+        <jar file="parsii-${productionCode}.jar" basedir="dist" />
+    </target>
+</project>
