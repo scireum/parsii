@@ -3,8 +3,8 @@ package parsii.eval;
 import java.util.List;
 
 /**
- * Represents a unary function.
- * <p>A binary function has one arguments which is always evaluated in order to compute the final result.</p>
+ * Represents an unary function.
+ * <p>An unary function has one arguments which is always evaluated in order to compute the final result.</p>
  *
  * @author Andreas Haufler (aha@scireum.de)
  * @since 2013/09
