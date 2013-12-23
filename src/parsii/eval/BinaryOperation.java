@@ -1,7 +1,5 @@
 package parsii.eval;
 
-import java.util.List;
-
 /**
  * Represents a binary operation.
  * <p>
@@ -18,25 +16,96 @@ public class BinaryOperation extends Expression {
      * Enumerates the operations supported by this expression.
      */
     public static enum Op {
-        ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO, POWER, LT, LT_EQ, EQ, GT_EQ, GT, NEQ, AND, OR;
-    }
+        ADD(3), SUBTRACT(3), MULTIPLY(4), DIVIDE(4), MODULO(4), POWER(5), LT(2), LT_EQ(2), EQ(2), GT_EQ(2), GT(2), NEQ(2), AND(
+                1), OR(1);
 
+        public int getPriority() {
+            return priority;
+        }
+
+        private final int priority;
+
+        private Op(int priority) {
+            this.priority = priority;
+        }
+    }
 
     private final Op op;
     private Expression left;
     private Expression right;
+    private boolean sealed = false;
 
     /**
      * When comparing two double values, those are considered equal, if their difference is lower than the defined
      * epsilon. This is way better than relying on an exact comparison due to rounding errors
      */
-    public static final double EPSILON = 0.0000001;
+    public static final double EPSILON = 0.0000000001;
 
     public BinaryOperation(Op op, Expression left, Expression right) {
         this.op = op;
         this.left = left;
         this.right = right;
     }
+
+    /**
+     * Returns the operation performed by this binary operation.
+     *
+     * @return the operation performed
+     */
+    public Op getOp() {
+        return op;
+    }
+
+    /**
+     * Returns the left operand
+     *
+     * @return the left operand of this operation
+     */
+    public Expression getLeft() {
+        return left;
+    }
+
+    /**
+     * Replaces the left operand of the operation with the given expression.
+     *
+     * @param left the new expression to be used as left operand
+     */
+    public void setLeft(Expression left) {
+        this.left = left;
+    }
+
+
+    /**
+     * Returns the right operand
+     *
+     * @return the right operand of this operation
+     */
+    public Expression getRight() {
+        return right;
+    }
+
+    /**
+     * Marks an operation as sealed, meaning that re-ordering or operations on the same level must not be re-ordered.
+     * <p>
+     * Binary operations are sealed if they're e.g. surrounded by braces.
+     * </p>
+     *
+     * @see Parser#reOrder(Expression, Expression, parsii.eval.BinaryOperation.Op)
+     */
+    public void seal() {
+        sealed = true;
+    }
+
+    /**
+     * Determines if the operation is sealed and operands must not be re-ordered.
+     *
+     * @return <tt>true</tt> if the operation is protected by braces and operands might not be exchanged with
+     *         operations nearby.
+     */
+    public boolean isSealed() {
+        return sealed;
+    }
+
 
     @Override
     public double evaluate() {
@@ -121,53 +190,11 @@ public class BinaryOperation extends Expression {
             }
         }
 
-//        // + and * and associative and commutative. Therefore we can change the order applied as we want.
-//        // We therefore collect all operands as long as the operation is the same, pre-process all constant values
-//        // and generate binary operations for the remaining expressions.
-//        // Therefore we simplify
-//        if (op == Op.ADD || op == Op.MULTIPLY) {
-//            List<Expression> values = new ArrayList<Expression>();
-//            List<Double> constants = new ArrayList<Double>();
-//            visitBinaryOps(op, values, constants, this);
-//            if (constants.isEmpty()) {
-//                return this;
-//            }
-//            double constant = Op.ADD == op ? 0d : 1d;
-//            for (Double val : constants) {
-//                if (op == Op.ADD) {
-//                    constant += val;
-//                } else {
-//                    constant *= val;
-//                }
-//            }
-//            Expression expr = new Constant(constant);
-//            for (Expression val : values) {
-//                expr = new BinaryOperation(op, expr, val);
-//            }
-//            return expr;
-//        }
-
         return super.simplify();
     }
 
-    private void visitBinaryOps(Op op,
-                                List<Expression> values,
-                                List<Double> constants,
-                                BinaryOperation binaryOperation) {
-        if (binaryOperation.left instanceof BinaryOperation && ((BinaryOperation) binaryOperation.left).op == op) {
-            visitBinaryOps(op, values, constants, (BinaryOperation) binaryOperation.left);
-        } else if (binaryOperation.left.isConstant()) {
-            constants.add(binaryOperation.left.evaluate());
-        } else {
-            values.add(binaryOperation.left);
-        }
-        if (binaryOperation.right instanceof BinaryOperation && ((BinaryOperation) binaryOperation.right).op == op) {
-            visitBinaryOps(op, values, constants, (BinaryOperation) binaryOperation.right);
-        } else if (binaryOperation.right.isConstant()) {
-            constants.add(binaryOperation.right.evaluate());
-        } else {
-            values.add(binaryOperation.right);
-        }
+    @Override
+    public String toString() {
+        return "(" + left.toString() + " " + op + " " + right + ")";
     }
-
 }

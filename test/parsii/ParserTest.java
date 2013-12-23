@@ -18,6 +18,16 @@ import static org.junit.Assert.assertNotEquals;
 public class ParserTest {
     @Test
     public void simple() throws ParseException {
+        assertEquals(-109d, Parser.parse("1 - (10 - -100)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.01d, Parser.parse("1 / 10 * 10 / 100").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-89d, Parser.parse("1 + 10 - 100").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(91d, Parser.parse("1 - 10 - -100").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(91d, Parser.parse("1 - 10  + 100").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-109d, Parser.parse("1 - (10 + 100)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-89d, Parser.parse("1 + (10 - 100)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(100d, Parser.parse("1 / 1 * 100").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.01d, Parser.parse("1 / (1 * 100)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.01d, Parser.parse("1 * 1 / 100").evaluate(), BinaryOperation.EPSILON);
         Assert.assertEquals(7d, Parser.parse("3+4").evaluate(), BinaryOperation.EPSILON);
         assertEquals(7d, Parser.parse("3      +    4").evaluate(), BinaryOperation.EPSILON);
         assertEquals(-1d, Parser.parse("3+ -4").evaluate(), BinaryOperation.EPSILON);
@@ -101,6 +111,15 @@ public class ParserTest {
         } catch (ParseException e) {
             assertEquals(5, e.getErrors().size());
         }
+    }
+
+    @Test
+    public void quantifiers() throws ParseException {
+        assertEquals(1000d, Parser.parse("1K").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1000d, Parser.parse("1M * 1m").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1d, Parser.parse("1n * 1G").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1d, Parser.parse("(1M / 1k) * 1m").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1d, Parser.parse("1u * 10k * 1000m * 0.1k").evaluate(), BinaryOperation.EPSILON);
     }
 
 

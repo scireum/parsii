@@ -22,18 +22,19 @@ import java.util.TreeMap;
  * <p>
  * This is a recursive descending parser which has a method per non-terminal.
  * </p>
- *<p>
- *     Using this parser is as easy as:
- *     <code>
- *         Scope scope = Scope.create();
- *         Variable a = scope.getVariable("a");
- *         Expression expr = Parser.parse("3 + a * 4");
- *         a.setValue(4);
- *         System.out.println(expr.evaluate());
- *         a.setValue(5);
- *         System.out.println(expr.evaluate());
- *     </code>
- *</p>
+ * <p>
+ * Using this parser is as easy as:
+ * <code>
+ * Scope scope = Scope.create();
+ * Variable a = scope.getVariable("a");
+ * Expression expr = Parser.parse("3 + a * 4");
+ * a.setValue(4);
+ * System.out.println(expr.evaluate());
+ * a.setValue(5);
+ * System.out.println(expr.evaluate());
+ * </code>
+ * </p>
+ *
  * @author Andreas Haufler (aha@scireum.de)
  * @since 2013/09
  */
@@ -171,10 +172,12 @@ public class Parser {
         Expression left = relationalExpression();
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "&&")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.AND, left, expression());
+            Expression right = expression();
+            return reOrder(left, right, BinaryOperation.Op.AND);
         } else if (tokenizer.current().matches(Token.TokenType.SYMBOL, "||")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.OR, left, expression());
+            Expression right = expression();
+            return reOrder(left, right, BinaryOperation.Op.OR);
         }
         return left;
     }
@@ -192,27 +195,33 @@ public class Parser {
         Expression left = term();
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "<")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.LT, left, relationalExpression());
+            Expression right = relationalExpression();
+            return reOrder(left, right, BinaryOperation.Op.LT);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "<=")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.LT_EQ, left, relationalExpression());
+            Expression right = relationalExpression();
+            return reOrder(left, right, BinaryOperation.Op.LT_EQ);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "=")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.EQ, left, relationalExpression());
+            Expression right = relationalExpression();
+            return reOrder(left, right, BinaryOperation.Op.EQ);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, ">=")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.GT_EQ, left, relationalExpression());
+            Expression right = relationalExpression();
+            return reOrder(left, right, BinaryOperation.Op.GT_EQ);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, ">")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.GT, left, relationalExpression());
+            Expression right = relationalExpression();
+            return reOrder(left, right, BinaryOperation.Op.GT);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "!=")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.NEQ, left, relationalExpression());
+            Expression right = relationalExpression();
+            return reOrder(left, right, BinaryOperation.Op.NEQ);
         }
         return left;
     }
@@ -229,15 +238,18 @@ public class Parser {
         Expression left = product();
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "+")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.ADD, left, term());
+            Expression right = term();
+            return reOrder(left, right, BinaryOperation.Op.ADD);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "-")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.SUBTRACT, left, term());
+            Expression right = term();
+            return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
         if (tokenizer.current().is(Token.TokenType.DECIMAL) || tokenizer.current().is(Token.TokenType.INTEGER)) {
             if (tokenizer.current().getContents().startsWith("-")) {
-                return new BinaryOperation(BinaryOperation.Op.ADD, left, term());
+                Expression right = term();
+                return reOrder(left, right, BinaryOperation.Op.ADD);
             }
         }
 
@@ -256,17 +268,46 @@ public class Parser {
         Expression left = power();
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "*")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.MULTIPLY, left, product());
+            Expression right = product();
+            return reOrder(left, right, BinaryOperation.Op.MULTIPLY);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "/")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.DIVIDE, left, product());
+            Expression right = product();
+            return reOrder(left, right, BinaryOperation.Op.DIVIDE);
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "%")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.MODULO, left, product());
+            Expression right = product();
+            return reOrder(left, right, BinaryOperation.Op.MODULO);
         }
         return left;
+    }
+
+    /**
+     * Reorders the operands of the given operation in order to generate a "left handed" AST which performs evaluations
+     * in natural order (from left to right).
+     */
+    private Expression reOrder(Expression left, Expression right, BinaryOperation.Op op) {
+        if (right instanceof BinaryOperation) {
+            BinaryOperation rightOp = (BinaryOperation) right;
+            if (!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
+                replaceLeft(rightOp, left, op);
+                return right;
+            }
+        }
+        return new BinaryOperation(op, left, right);
+    }
+
+    private void replaceLeft(BinaryOperation target, Expression newLeft, BinaryOperation.Op op) {
+        if (target.getLeft() instanceof BinaryOperation) {
+            BinaryOperation leftOp = (BinaryOperation) target.getLeft();
+            if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
+                replaceLeft(leftOp, newLeft, op);
+                return;
+            }
+        }
+        target.setLeft(new BinaryOperation(op, newLeft, target.getLeft()));
     }
 
     /**
@@ -283,7 +324,8 @@ public class Parser {
                                                                                  .matches(Token.TokenType.SYMBOL,
                                                                                           "**")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.POWER, left, power());
+            Expression right = power();
+            return reOrder(left, right, BinaryOperation.Op.POWER);
         }
         return left;
     }
@@ -301,11 +343,16 @@ public class Parser {
     protected Expression atom() {
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "-")) {
             tokenizer.consume();
-            return new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
+            BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
+            result.seal();
+            return result;
         }
         if (tokenizer.current().matches(Token.TokenType.SYMBOL, "(")) {
             tokenizer.consume();
             Expression result = expression();
+            if (result instanceof BinaryOperation) {
+                ((BinaryOperation) result).seal();
+            }
             expect(Token.TokenType.SYMBOL, ")");
             return result;
         }
@@ -324,7 +371,30 @@ public class Parser {
             return new VariableReference(scope.getVariable(tokenizer.consume().getContents()));
         }
         if (tokenizer.current().is(Token.TokenType.INTEGER) || tokenizer.current().is(Token.TokenType.DECIMAL)) {
-            return new Constant(Double.parseDouble(tokenizer.consume().getContents()));
+            double value = Double.parseDouble(tokenizer.consume().getContents());
+            if (tokenizer.current().is(Token.TokenType.ID)) {
+                String quantifier = tokenizer.current().getContents().intern();
+                if ("n" == quantifier) {
+                    value /= 1000000000d;
+                    tokenizer.consume();
+                } else if ("u" == quantifier) {
+                    value /= 1000000d;
+                    tokenizer.consume();
+                } else if ("m" == quantifier) {
+                    value /= 1000d;
+                    tokenizer.consume();
+                } else if ("K" == quantifier || "k" == quantifier) {
+                    value *= 1000d;
+                    tokenizer.consume();
+                } else if ("M" == quantifier) {
+                    value *= 1000000d;
+                    tokenizer.consume();
+                } else if ("G" == quantifier) {
+                    value *= 1000000000d;
+                    tokenizer.consume();
+                }
+            }
+            return new Constant(value);
         }
         Token token = tokenizer.consume();
         errors.add(ParseError.error(token,

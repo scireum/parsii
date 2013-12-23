@@ -36,5 +36,4 @@ public abstract class Expression {
     public boolean isConstant() {
         return false;
     }
-
 }
