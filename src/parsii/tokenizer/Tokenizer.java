@@ -64,7 +64,7 @@ public class Tokenizer extends Lookahead<Token> {
      * All supported brackets. For obvious reasons, several brackets like (( are treated as two symbols, rather than
      * operators like ** which will create one symbol
      */
-    private char[] brackets = new char[]{'(', '[', '{', '<', '>', '}', ']', ')'};
+    private char[] brackets = new char[]{'(', '[', '{', '}', ']', ')'};
     /*
      * Determines if a single pipe (this: | ) will be treated as bracket. This could can be used like | a - b |
      * However || will be handled as symbol with two characters, as it is often used as "or".
@@ -78,7 +78,10 @@ public class Tokenizer extends Lookahead<Token> {
      * Contains keywords which will cause IDs to be converted to KEYWORD if the name matches
      */
     private Map<String, String> keywords = new IdentityHashMap<String, String>();
-
+    /*
+     * Determines if keywords are case sensitive
+     */
+    private boolean keywordsCaseSensitive = false;
     /*
      * Contains all characters which are used to delimit a string, and also a second character which is used to
      * escape characters within this string. '\0' means no escaping.
@@ -383,7 +386,10 @@ public class Tokenizer extends Lookahead<Token> {
      * @return a keyword Token if the given identifier was a keyword, the original Token otherwise
      */
     protected Token handleKeywords(Token idToken) {
-        String keyword = keywords.get(idToken.getContents().toLowerCase().intern());
+        String keyword = keywordsCaseSensitive ? keywords.get(idToken.getContents()
+                                                                     .intern()) : keywords.get(idToken.getContents()
+                                                                                                      .toLowerCase()
+                                                                                                      .intern());
         if (keyword != null) {
             Token keywordToken = Token.create(Token.TokenType.KEYWORD, idToken);
             keywordToken.setTrigger(keyword);
@@ -499,6 +505,31 @@ public class Tokenizer extends Lookahead<Token> {
     }
 
     /**
+     * Determines if keywords are case sensitive.
+     * <p>
+     * By default, keywords aren't case sensitive. Therefore True and true are the same keyword.
+     * </p>
+     *
+     * @return <tt>true</tt> if keywords are case sensitive, <tt>false</tt> otherwise
+     */
+    public boolean isKeywordsCaseSensitive() {
+        return keywordsCaseSensitive;
+    }
+
+    /**
+     * Sets the case sensitiveness of keywords.
+     * <p>
+     * This must be setup before any call to {@link #addKeyword(String)} as this will determine internal data structures
+     * </p>
+     *
+     * @param keywordsCaseSensitive <tt>true</tt> if keywords should be treated as case sensitive, <tt>false</tt>
+     *                              otherwise (default)
+     */
+    public void setKeywordsCaseSensitive(boolean keywordsCaseSensitive) {
+        this.keywordsCaseSensitive = keywordsCaseSensitive;
+    }
+
+    /**
      * Adds a keyword which is now being recognized by the tokenizer
      * <p>
      * Detection will be case insensitive. Only ID tokens (identifiers) are checked against the given keywords,
@@ -508,7 +539,7 @@ public class Tokenizer extends Lookahead<Token> {
      * @param keyword the keyword to be added to the list of known keywords.
      */
     public void addKeyword(String keyword) {
-        keywords.put(keyword.toLowerCase().intern(), keyword);
+        keywords.put(keywordsCaseSensitive ? keyword.intern() : keyword.toLowerCase().intern(), keyword);
     }
 
     /**
