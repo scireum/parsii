@@ -1,3 +1,11 @@
+/*
+ * Made with all the love in the world
+ * by scireum in Remshalden, Germany
+ *
+ * Copyright by scireum GmbH
+ * http://www.scireum.de - info@scireum.de
+ */
+
 package parsii.tokenizer;
 
 import java.io.Reader;
@@ -74,6 +82,10 @@ public class Tokenizer extends Lookahead<Token> {
      * These characters are used to identify the start of a SPECIAL_ID like "$test"
      */
     private Set<Character> specialIdStarters = new HashSet<Character>();
+    /*
+     * These characters are used to identify the end of a SPECIAL_ID like "test:"
+     */
+    private Set<Character> specialIdTerminators = new HashSet<Character>();
     /*
      * Contains keywords which will cause IDs to be converted to KEYWORD if the name matches
      */
@@ -170,8 +182,8 @@ public class Tokenizer extends Lookahead<Token> {
         }
 
         problemCollector.add(ParseError.error(input.current(),
-                                              String.format("Invalid character in input: '%s'",
-                                                            input.current().getStringValue())));
+                String.format("Invalid character in input: '%s'",
+                        input.current().getStringValue())));
         input.consume();
         return fetch();
     }
@@ -306,8 +318,8 @@ public class Tokenizer extends Lookahead<Token> {
                 result.addToSource(input.consume());
                 if (!handleStringEscape(separator, escapeChar, result)) {
                     problemCollector.add(ParseError.error(input.next(),
-                                                          String.format("Cannot use '%s' as escaped character",
-                                                                        input.next().getStringValue())));
+                            String.format("Cannot use '%s' as escaped character",
+                                    input.next().getStringValue())));
                 }
             } else {
                 result.addToContent(input.consume());
@@ -376,6 +388,15 @@ public class Tokenizer extends Lookahead<Token> {
         while (isIdentifierChar(input.current())) {
             result.addToContent(input.consume());
         }
+        if (!input.current().isEndOfInput() && specialIdTerminators.contains(input.current().getValue())) {
+            Token specialId = Token.create(Token.TokenType.SPECIAL_ID, result);
+            specialId.setTrigger(input.current().getStringValue());
+            specialId.setContent(result.getContents());
+            specialId.setSource(result.getContents());
+            specialId.addToSource(input.current());
+            input.consume();
+            return specialId;
+        }
         return handleKeywords(result);
     }
 
@@ -387,9 +408,9 @@ public class Tokenizer extends Lookahead<Token> {
      */
     protected Token handleKeywords(Token idToken) {
         String keyword = keywordsCaseSensitive ? keywords.get(idToken.getContents()
-                                                                     .intern()) : keywords.get(idToken.getContents()
-                                                                                                      .toLowerCase()
-                                                                                                      .intern());
+                .intern()) : keywords.get(idToken.getContents()
+                .toLowerCase()
+                .intern());
         if (keyword != null) {
             Token keywordToken = Token.create(Token.TokenType.KEYWORD, idToken);
             keywordToken.setTrigger(keyword);
@@ -483,7 +504,7 @@ public class Tokenizer extends Lookahead<Token> {
     protected Token fetchNumber() {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
-        while (input.current().isDigit() || input.current().is(decimalSeparator, groupingSeparator)) {
+        while (input.current().isDigit() || (input.current().is(decimalSeparator, groupingSeparator) && input.next().isDigit())) {
             if (input.current().is(groupingSeparator)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(decimalSeparator)) {
@@ -550,6 +571,16 @@ public class Tokenizer extends Lookahead<Token> {
      */
     public void addSpecialIdStarter(char character) {
         specialIdStarters.add(character);
+    }
+
+    /**
+     * Adds character as a special id terminator. The given character can be placed at the end of an id
+     * to be recognized as SPECIAL_ID.
+     *
+     * @param character the character to be added as special id terminator
+     */
+    public void addSpecialIdTerminator(char character) {
+        specialIdTerminators.add(character);
     }
 
     /**
@@ -711,5 +742,10 @@ public class Tokenizer extends Lookahead<Token> {
      */
     public void setBlockCommentEnd(String blockCommentEnd) {
         this.blockCommentEnd = blockCommentEnd;
+    }
+
+    @Override
+    public String toString() {
+        return "Current: " + current().toString() + ", Next: " + next().toString();
     }
 }

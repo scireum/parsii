@@ -1,3 +1,11 @@
+/*
+ * Made with all the love in the world
+ * by scireum in Remshalden, Germany
+ *
+ * Copyright by scireum GmbH
+ * http://www.scireum.de - info@scireum.de
+ */
+
 package parsii.tokenizer;
 
 /**
@@ -274,6 +282,39 @@ public class Token implements Position {
     }
 
     /**
+     * Determines if this token was triggered by one of the given triggers.
+     *
+     * @param triggers a list of possible triggers to compare to
+     * @return <tt>true</tt> if this token was triggered by one of the given triggers, <tt>false</tt> otherwise
+     */
+    public boolean wasTriggeredBy(String... triggers) {
+        if (triggers.length == 0) {
+            return false;
+        }
+        for (String aTrigger : triggers) {
+            if (aTrigger != null && aTrigger.intern() == getTrigger()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if the given content matches the content of this token.
+     *
+     * @param content the content to check for
+     * @return <tt>true</tt> if the content of this token equals the given content (ignoring case),
+     *         <tt>false</tt> otherwise
+     */
+    public boolean hasContent(String content) {
+        if (content == null) {
+            throw new IllegalArgumentException("content must not be null");
+        }
+        return content.equalsIgnoreCase(getContents());
+    }
+
+    /**
      * Determines if the token has the given type
      *
      * @param type the expected type
@@ -285,6 +326,6 @@ public class Token implements Position {
 
     @Override
     public String toString() {
-        return getSource();
+        return getType().toString() + ":" + getSource() + " (" + line + ":" + pos + ")";
     }
 }
