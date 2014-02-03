@@ -17,3 +17,14 @@ For your convenience: A pre-built jar can be found in the build directory.
 
 parsii is part of the open source initiative of scireum GmbH (http://www.scireum.de)   
 Check out or micro kernel called SIRIS: https://github.com/scireum/sirius
+
+## Maven
+
+parsii is available under:
+
+    <dependency>
+      <groupId>com.scireum</groupId>
+      <artifactId>parsii</artifactId>
+      <version>1.0</version>
+    </dependency>
+
