@@ -19,14 +19,14 @@ import java.util.*;
  * </p>
  * <p>By default the tokenizer operates as follows:
  * <ul>
- * <li>Consume and ignore any whitespace characters (see {@lnk Char#isWhitepace()}</li>
+ * <li>Consume and ignore any whitespace characters (see {@link Char#isWhitepace()}</li>
  * <li>If the current character starts a line comment, read until the end of the line and ignore all characters
  * consumed.</li>
  * <li>If the current character starts a block comment, read until and end of block comment is detected.</li>
  * <li>If the current character is a digit, parse a INTEGER, if a decimal separator is found, switch over to a DECIMAL
- * (see {@lnk Char#isDigit()}. Also if the current character is a '-' and the next is a digit, we try to read
+ * (see {@link Char#isDigit()}. Also if the current character is a '-' and the next is a digit, we try to read
  * a number.</li>
- * <li>If the current character is a letter, parse an ID (see {@lnk Char#isLetter()}. Once this is complete, check if
+ * <li>If the current character is a letter, parse an ID (see {@link Char#isLetter()}. Once this is complete, check if
  * the ID matches one of the supplied keywords, and convert if necessary.</li>
  * <li>If the current character is an opening or closing bracket, a SYMBOL for that single character is returned</li>
  * <li>If the current character is one of the special id starters, all valid ID characters

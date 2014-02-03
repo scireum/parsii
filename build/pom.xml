@@ -1,0 +1,28 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.scireum</groupId>
+    <artifactId>parsii</artifactId>
+    <packaging>jar</packaging>
+    <name>parsii</name>
+    <version>1.0</version>
+    <description>parsii is a super fast and lightweight parser and expression evaluator</description>
+    <url>https://github.com/scireum/parsii</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/scireum/parsii/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/scireum/parsii.git</url>
+        <connection>https://github.com/scireum/parsii.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>aha</id>
+            <name>Andreas Haufler</name>
+            <email>aha@scireum.de</email>
+        </developer>
+    </developers>
+</project>

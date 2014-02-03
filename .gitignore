@@ -2,3 +2,4 @@ build/dist
 out
 .idea
 parsii.iml
+build/docs

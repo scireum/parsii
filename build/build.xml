@@ -1,4 +1,16 @@
-<project name="parsii">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Made with all the love in the world
+  ~ by scireum in Remshalden, Germany
+  ~
+  ~ Copyright by scireum GmbH
+  ~ http://www.scireum.de - info@scireum.de
+  -->
+<project name="parsii" default="make" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+    <!-- =========================================================================================================== -->
+    <!-- Builds a regular jar in /build/dist -->
+    <!-- =========================================================================================================== -->
     <target name="make">
         <mkdir dir="dist" />
         <delete>
@@ -6,7 +18,18 @@
                 <include name="**/*"/>
             </fileset>
         </delete>
-        
+        <delete>
+            <fileset dir=".">
+                <include name="*.jar*"/>
+            </fileset>
+        </delete>
+        <mkdir dir="docs" />
+        <delete>
+            <fileset dir="docs">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+
         <javac compiler="javac1.6"
                includeantruntime="false"
                encoding="UTF-8"
@@ -22,4 +45,99 @@
 
         <jar file="parsii-${productionCode}.jar" basedir="dist" />
     </target>
+
+    <!-- =========================================================================================================== -->
+    <!-- Used to auto-install mvn -->
+    <!-- =========================================================================================================== -->
+    <property name="mvn.jar.version" value="2.1.3"/>
+    <property name="mvn.jar.name" value="maven-ant-tasks-${mvn.jar.version}.jar"/>
+    <property name="mvn.home" value="${user.home}/.m2"/>
+
+    <!-- defined maven snapshots and staging repository id and url -->
+    <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
+    <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
+    <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
+    <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+
+    <!-- =========================================================================================================== -->
+    <!-- Check if mvn is present -->
+    <!-- =========================================================================================================== -->
+    <available property="mvn.installed" file="${mvn.home}/${mvn.jar.name}"/>
+
+    <!-- =========================================================================================================== -->
+    <!-- Downloads and installs mvn -->
+    <!-- =========================================================================================================== -->
+    <target name="mvn-install" unless="mvn.installed" description="Downloads and installs mvn">
+        <mkdir dir="${mvn.home}"/>
+        <get src="http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/maven/ant-tasks/${mvn.jar.version}/binaries/${mvn.jar.name}"
+             dest="${mvn.home}/${mvn.jar.name}"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!-- Checks if mvn is present or downloads it otherwise -->
+    <!-- =========================================================================================================== -->
+    <target name="mvn-init" depends="mvn-install, make" description="Checks if mvn is present or downloads it otherwise">
+        <taskdef resource="org/apache/maven/artifact/ant/antlib.xml"
+                 uri="antlib:org.apache.maven.artifact.ant"
+                 classpath="${mvn.home}/${mvn.jar.name}"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!-- Deploy snapshot version to Maven snapshot repository -->
+    <!-- =========================================================================================================== -->
+    <target name="mvn-deploy" depends="mvn-init" description="deploy snapshot version to Maven snapshot repository">
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file" />
+            <arg value="-Durl=${maven-snapshots-repository-url}" />
+            <arg value="-DrepositoryId=${maven-snapshots-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=parsii-${productionCode}.jar" />
+        </artifact:mvn>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!-- Deploy release version to Maven staging repository -->
+    <!-- before this, update project version from SNAPSHOT to RELEASE -->
+    <!-- =========================================================================================================== -->
+    <target name="mvn-stage" depends="mvn-init" description="deploy release version to Maven staging repository">
+
+        <jar file="parsii-${productionCode}-sources.jar" basedir="../src" />
+        <javadoc sourcepath="../src" destdir="docs" />
+        <jar file="parsii-${productionCode}-javadoc.jar" basedir="docs" />
+
+        <!-- sign and deploy the main artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=parsii-${productionCode}.jar" />
+            <arg value="-Dgpg.executable=/usr/local/bin/gpg" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+        <!-- sign and deploy the javadoc artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=parsii-${productionCode}-javadoc.jar" />
+            <arg value="-Dclassifier=javadoc" />
+            <arg value="-Dgpg.executable=/usr/local/bin/gpg" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+        <!-- sign and deploy the source artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=parsii-${productionCode}-sources.jar" />
+            <arg value="-Dclassifier=sources" />
+            <arg value="-Dgpg.executable=/usr/local/bin/gpg" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+
+    </target>
+
 </project>
