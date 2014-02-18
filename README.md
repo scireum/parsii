@@ -8,7 +8,7 @@ Using it is as simple as:
 ```java
 Scope scope = Scope.create();   
 Variable a = scope.getVariable("a");   
-Expression expr = Parser.parse("3 + a * 4");   
+Expression expr = Parser.parse("3 + a * 4", scope);   
 a.setValue(4);   
 System.out.println(expr.evaluate());   
 a.setValue(5);   
