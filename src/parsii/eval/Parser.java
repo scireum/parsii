@@ -178,11 +178,11 @@ public class Parser {
      */
     protected Expression expression() {
         Expression left = relationalExpression();
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "&&")) {
+        if (tokenizer.current().isSymbol("&&")) {
             tokenizer.consume();
             Expression right = expression();
             return reOrder(left, right, BinaryOperation.Op.AND);
-        } else if (tokenizer.current().matches(Token.TokenType.SYMBOL, "||")) {
+        } else if (tokenizer.current().isSymbol("||")) {
             tokenizer.consume();
             Expression right = expression();
             return reOrder(left, right, BinaryOperation.Op.OR);
@@ -201,32 +201,32 @@ public class Parser {
      */
     protected Expression relationalExpression() {
         Expression left = term();
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "<")) {
+        if (tokenizer.current().isSymbol("<")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.LT);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "<=")) {
+        if (tokenizer.current().isSymbol("<=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.LT_EQ);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "=")) {
+        if (tokenizer.current().isSymbol("=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.EQ);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, ">=")) {
+        if (tokenizer.current().isSymbol(">=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.GT_EQ);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, ">")) {
+        if (tokenizer.current().isSymbol(">")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.GT);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "!=")) {
+        if (tokenizer.current().isSymbol("!=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.NEQ);
@@ -244,17 +244,17 @@ public class Parser {
      */
     protected Expression term() {
         Expression left = product();
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "+")) {
+        if (tokenizer.current().isSymbol("+")) {
             tokenizer.consume();
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.ADD);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "-")) {
+        if (tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
-        if (tokenizer.current().is(Token.TokenType.DECIMAL) || tokenizer.current().is(Token.TokenType.INTEGER)) {
+        if (tokenizer.current().isNumber()) {
             if (tokenizer.current().getContents().startsWith("-")) {
                 Expression right = term();
                 return reOrder(left, right, BinaryOperation.Op.ADD);
@@ -274,17 +274,17 @@ public class Parser {
      */
     protected Expression product() {
         Expression left = power();
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "*")) {
+        if (tokenizer.current().isSymbol("*")) {
             tokenizer.consume();
             Expression right = product();
             return reOrder(left, right, BinaryOperation.Op.MULTIPLY);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "/")) {
+        if (tokenizer.current().isSymbol("/")) {
             tokenizer.consume();
             Expression right = product();
             return reOrder(left, right, BinaryOperation.Op.DIVIDE);
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "%")) {
+        if (tokenizer.current().isSymbol("%")) {
             tokenizer.consume();
             Expression right = product();
             return reOrder(left, right, BinaryOperation.Op.MODULO);
@@ -328,9 +328,7 @@ public class Parser {
      */
     protected Expression power() {
         Expression left = atom();
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "^") || tokenizer.current()
-                                                                                 .matches(Token.TokenType.SYMBOL,
-                                                                                          "**")) {
+        if (tokenizer.current().isSymbol("^") || tokenizer.current().isSymbol("**")) {
             tokenizer.consume();
             Expression right = power();
             return reOrder(left, right, BinaryOperation.Op.POWER);
@@ -349,13 +347,13 @@ public class Parser {
      * @return an atom parsed from the given input
      */
     protected Expression atom() {
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "-")) {
+        if (tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
             BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
             result.seal();
             return result;
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "(")) {
+        if (tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
             Expression result = expression();
             if (result instanceof BinaryOperation) {
@@ -364,7 +362,7 @@ public class Parser {
             expect(Token.TokenType.SYMBOL, ")");
             return result;
         }
-        if (tokenizer.current().matches(Token.TokenType.SYMBOL, "|")) {
+        if (tokenizer.current().isSymbol("|")) {
             tokenizer.consume();
             FunctionCall call = new FunctionCall();
             call.addParameter(expression());
@@ -372,13 +370,13 @@ public class Parser {
             expect(Token.TokenType.SYMBOL, "|");
             return call;
         }
-        if (tokenizer.current().is(Token.TokenType.ID)) {
-            if (tokenizer.next().matches(Token.TokenType.SYMBOL, "(")) {
+        if (tokenizer.current().isIdentifier()) {
+            if (tokenizer.next().isSymbol("(")) {
                 return functionCall();
             }
             return new VariableReference(scope.getVariable(tokenizer.consume().getContents()));
         }
-        if (tokenizer.current().is(Token.TokenType.INTEGER) || tokenizer.current().is(Token.TokenType.DECIMAL)) {
+        if (tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {
                 String quantifier = tokenizer.current().getContents().intern();
@@ -406,8 +404,8 @@ public class Parser {
         }
         Token token = tokenizer.consume();
         errors.add(ParseError.error(token,
-                                    String.format("Unexpected token: '%s'. Expected an expression.",
-                                                  token.getSource())));
+                String.format("Unexpected token: '%s'. Expected an expression.",
+                        token.getSource())));
         return Constant.EMPTY;
     }
 
@@ -425,7 +423,7 @@ public class Parser {
         }
         call.setFunction(fun);
         tokenizer.consume(); // (
-        while (!tokenizer.current().matches(Token.TokenType.SYMBOL, ")") && tokenizer.current().isNotEnd()) {
+        while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
             if (!call.getParameters().isEmpty()) {
                 expect(Token.TokenType.SYMBOL, ",");
             }
@@ -437,11 +435,11 @@ public class Parser {
         }
         if (call.getParameters().size() != fun.getNumberOfArguments()) {
             errors.add(ParseError.error(funToken,
-                                        String.format(
-                                                "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                                                funToken.getContents(),
-                                                fun.getNumberOfArguments(),
-                                                call.getParameters().size())));
+                    String.format(
+                            "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
+                            funToken.getContents(),
+                            fun.getNumberOfArguments(),
+                            call.getParameters().size())));
             return Constant.EMPTY;
         }
         return call;
@@ -462,9 +460,9 @@ public class Parser {
             tokenizer.consume();
         } else {
             errors.add(ParseError.error(tokenizer.current(),
-                                        String.format("Unexpected token '%s'. Expected: '%s'",
-                                                      tokenizer.current().getSource(),
-                                                      trigger)));
+                    String.format("Unexpected token '%s'. Expected: '%s'",
+                            tokenizer.current().getSource(),
+                            trigger)));
         }
     }
 

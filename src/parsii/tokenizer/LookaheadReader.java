@@ -67,4 +67,15 @@ public class LookaheadReader extends Lookahead<Char> {
             return null;
         }
     }
+
+    @Override
+    public String toString() {
+        if (itemBuffer.size() == 0) {
+            return line + ":" + pos + ": Buffer empty";
+        }
+        if (itemBuffer.size() < 2) {
+            return line + ":" + pos + ": " + current();
+        }
+        return line + ":" + pos + ": " + current() + ", " + next();
+    }
 }

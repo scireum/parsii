@@ -43,7 +43,7 @@ public class Tokenizer extends Lookahead<Token> {
     /*
      * Contains the underlying input
      */
-    private LookaheadReader input;
+    protected LookaheadReader input;
     /*
      * Decimal separator used when detecting decimal numbers
      */
@@ -167,12 +167,12 @@ public class Tokenizer extends Lookahead<Token> {
 
         // Treat brackets as special symbols: (( will create two consecutive symbols but ** will create a single
         // symbol "**".
-        if (isAtBacket(false)) {
+        if (isAtBracket(false)) {
             return Token.createAndFill(Token.TokenType.SYMBOL, input.consume());
         }
 
         // Check if the current character starts a special ID
-        if (specialIdStarters.contains(input.current().getValue())) {
+        if (isAtStartOfSpecialId()) {
             return fetchSpecialId();
         }
 
@@ -186,6 +186,18 @@ public class Tokenizer extends Lookahead<Token> {
                         input.current().getStringValue())));
         input.consume();
         return fetch();
+    }
+
+    /**
+     * Determines if the underlying input is looking at the start of a special id.
+     * <p>
+     * By default this is one of the given <dd>specialIdStarters</dd>.
+     * </p>
+     *
+     * @return <tt>true</tt> if the current input is the start of a special id, <tt>false</tt> otherwise
+     */
+    protected boolean isAtStartOfSpecialId() {
+        return specialIdStarters.contains(input.current().getValue());
     }
 
     /**
@@ -210,7 +222,7 @@ public class Tokenizer extends Lookahead<Token> {
      * @param inSymbol determines if we're already parsing a symbol or just trying to decide what the next token is
      * @return <tt>true</tt> if the current input is an opening or closing bracket
      */
-    protected boolean isAtBacket(boolean inSymbol) {
+    protected boolean isAtBracket(boolean inSymbol) {
         if (input.current().is(brackets)) {
             return true;
         }
@@ -395,7 +407,7 @@ public class Tokenizer extends Lookahead<Token> {
             specialId.setSource(result.getContents());
             specialId.addToSource(input.current());
             input.consume();
-            return specialId;
+            return handleKeywords(specialId);
         }
         return handleKeywords(result);
     }
@@ -449,7 +461,7 @@ public class Tokenizer extends Lookahead<Token> {
         while (isIdentifierChar(input.current())) {
             result.addToContent(input.consume());
         }
-        return result;
+        return handleKeywords(result);
     }
 
     /**
@@ -489,7 +501,7 @@ public class Tokenizer extends Lookahead<Token> {
             return false;
         }
 
-        if (isAtBacket(true) || isAtStartOfBlockComment() || isAtStartOfLineComment() || isAtStartOfNumber() || isAtStartOfIdentifier()) {
+        if (isAtBracket(true) || isAtStartOfBlockComment() || isAtStartOfLineComment() || isAtStartOfNumber() || isAtStartOfIdentifier() || stringDelimiters.containsKey(ch.getValue())) {
             return false;
         }
         return true;
@@ -746,6 +758,110 @@ public class Tokenizer extends Lookahead<Token> {
 
     @Override
     public String toString() {
+        // We check the internal buffer first to that no further parsing is triggered by calling toString()
+        // as it is frequently invoked by the debugger which causes nasty side-effects otherwise
+        if (itemBuffer.size() == 0) {
+            return "No Token fetched...";
+        }
+        if (itemBuffer.size() < 2) {
+            return "Current: " + current();
+        }
         return "Current: " + current().toString() + ", Next: " + next().toString();
+    }
+
+    /**
+     * Boilerplate method for <code>current().isNotEnd()</code>
+     *
+     * @return <tt>true</tt> if the current token is not an "end of input" token, <tt>false</tt> otherwise.
+     */
+    public boolean more() {
+        return current().isNotEnd();
+    }
+
+    /**
+     * Boilerplate method for <code>current().isEnd()</code>
+     *
+     * @return <tt>true</tt> if the current token is an "end of input" token, <tt>false</tt> otherwise.
+     */
+    public boolean atEnd() {
+        return current().isEnd();
+    }
+
+    /**
+     * Adds a parse error to the internal problem collector.
+     * <p>
+     * It is preferred to collect as much errors as possible and then fail with an exception instead of failing
+     * at the first problem. Often syntax errors can be worked out by the parser and we can report a set of
+     * errors at once.
+     * </p>
+     *
+     * @param pos        the position of the error. Note that {@link Token} implements {@link Position}. Therefore the
+     *                   current token is often a good choice for this parameter.
+     * @param message    the message to describe the error. Can contain formatting parameters like %s or %d as defined
+     *                   by {@link String#format(String, Object...)}
+     * @param parameters Contains the parameters used to format the given message
+     */
+    public void addError(Position pos, String message, Object... parameters) {
+        getProblemCollector().add(ParseError.error(pos, String.format(message, parameters)));
+    }
+
+    /**
+     * Adds a warning to the internal problem collector.
+     * <p>
+     * A warning indicates an anomaly which might lead to an error but still, the parser can continue to complete its
+     * work.
+     * </p>
+     *
+     * @param pos        the position of the warning. Note that {@link Token} implements {@link Position}.
+     *                   Therefore the current token is often a good choice for this parameter.
+     * @param message    the message to describe the earning. Can contain formatting parameters like %s or %d as
+     *                   defined by {@link String#format(String, Object...)}
+     * @param parameters Contains the parameters used to format the given message
+     */
+    public void addWarning(Position pos, String message, Object... parameters) {
+        getProblemCollector().add(ParseError.warning(pos, String.format(message, parameters)));
+    }
+
+    public void consumeExpectedSymbol(String symbol) {
+        if (current().matches(Token.TokenType.SYMBOL, symbol)) {
+            consume();
+        } else {
+            addError(current(), "Unexpected token: '%s'. Expected: '%s'", current().getSource(), symbol);
+        }
+    }
+
+    public void consumeExpectedKeyword(String keyword) {
+        if (current().matches(Token.TokenType.KEYWORD, keyword)) {
+            consume();
+        } else {
+            addError(current(), "Unexpected token: '%s'. Expected: '%s'", current().getSource(), keyword);
+        }
+    }
+
+    /**
+     * Throws a {@link ParseException} if an error or warning occurred while parsing the input
+     *
+     * @throws ParseException if an error or warning occurred while parsing.
+     */
+    public void throwOnErrorOrWarning() throws ParseException {
+        if (!getProblemCollector().isEmpty()) {
+            throw ParseException.create(getProblemCollector());
+        }
+    }
+
+    /**
+     * Throws a {@link ParseException} if an error occurred while parsing the input.
+     * <p>
+     * All warnings which occurred will be ignored.
+     * </p>
+     *
+     * @throws ParseException if an error occurred while parsing.
+     */
+    public void throwOnError() throws ParseException {
+        for (ParseError e : getProblemCollector()) {
+            if (e.getSeverity() == ParseError.Severity.ERROR) {
+                throw ParseException.create(getProblemCollector());
+            }
+        }
     }
 }

@@ -324,6 +324,156 @@ public class Token implements Position {
         return this.type == type;
     }
 
+    /**
+     * Determines if this token is a symbol.
+     * <p>
+     * If a list of <dd>symbols</dd> is given, this method checks that the trigger matches one of them.
+     * </p>
+     *
+     * @param symbols the symbols to check for. If the list es empty, only the token type is checked.
+     * @return <tt>true</tt> if this token is a symbol and matches one of the given <dd>symbols</dd> if the list
+     *         is not empty.
+     */
+    public boolean isSymbol(String... symbols) {
+        if (symbols.length == 0) {
+            return is(TokenType.SYMBOL);
+        }
+        for (String symbol : symbols) {
+            if (matches(TokenType.SYMBOL, symbol)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determines if this token is a keyword.
+     * <p>
+     * If a list of <dd>symbols</dd> is given, this method checks that the trigger matches one of them.
+     * </p>
+     *
+     * @param keywords the keywords to check for. If the list es empty, only the token type is checked.
+     * @return <tt>true</tt> if this token is a keyword and matches one of the given <dd>keywords</dd> if the list
+     *         is not empty.
+     */
+    public boolean isKeyword(String... keywords) {
+        if (keywords.length == 0) {
+            return is(TokenType.KEYWORD);
+        }
+        for (String keyword : keywords) {
+            if (matches(TokenType.KEYWORD, keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determines if this token is an identifier.
+     * <p>
+     * If a list of <dd>values</dd> is given, this method checks that the content matches one of them.
+     * </p>
+     *
+     * @param values the values to check for. If the list es empty, only the token type is checked.
+     * @return <tt>true</tt> if this token is an identifier and matches one of the given <dd>values</dd> if the list
+     *         is not empty.
+     */
+    public boolean isIdentifier(String... values) {
+        if (values.length == 0) {
+            return is(TokenType.ID);
+        }
+        for (String value : values) {
+            if (matches(TokenType.ID, value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determines if this token is a special identifier.
+     * <p>
+     * If a list of <dd>triggers</dd> is given, this method checks that the trigger matches one of them.
+     * </p>
+     *
+     * @param triggers the triggers to check for. If the list es empty, only the token type is checked.
+     * @return <tt>true</tt> if this token is a special identifier and matches one of the given <dd>triggers</dd>
+     *         if the list is not empty.
+     */
+    public boolean isSpecialIdentifier(String... triggers) {
+        if (triggers.length == 0) {
+            return is(TokenType.SPECIAL_ID);
+        }
+        for (String trigger : triggers) {
+            if (matches(TokenType.SPECIAL_ID, trigger)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determines if this token is a special identifier with the given trigger.
+     * <p>
+     * If a list of <dd>contents</dd> is given, this method checks that the content matches one of them.
+     * </p>
+     *
+     * @param trigger  the trigger of the special id
+     * @param contents the content to check for. If the list es empty, only the token type and the trigger is checked.
+     * @return <tt>true</tt> if this token is a special identifier with the given trigger.
+     *         If <dd>contents</dd> is not empty, the content must also match one of the elements.
+     */
+    public boolean isSpecialIdentifierWithContent(String trigger, String... contents) {
+        if (!matches(TokenType.SPECIAL_ID, trigger)) {
+            return false;
+        }
+        if (contents.length == 0) {
+            return true;
+        }
+        for (String content : contents) {
+            if (content != null && content.equals(getContents())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determines if this token is an integer number.
+     *
+     * @return <tt>true</tt> if this token is an integer number, <tt>false</tt> otherwise
+     */
+    public boolean isInteger() {
+        return is(TokenType.INTEGER);
+    }
+
+    /**
+     * Determines if this token is a decimal number.
+     *
+     * @return <tt>true</tt> if this token is a decimal number, <tt>false</tt> otherwise
+     */
+    public boolean isDecimal() {
+        return is(TokenType.DECIMAL);
+    }
+
+    /**
+     * Determines if this token is an integer or decimal number.
+     *
+     * @return <tt>true</tt> if this token is an integer or decimal number, <tt>false</tt> otherwise
+     */
+    public boolean isNumber() {
+        return isInteger() || isDecimal();
+    }
+
+    /**
+     * Determines if this token is a string constant
+     *
+     * @return <tt>true</tt> if this token is a string constant, <tt>false</tt> otherwise
+     */
+    public boolean isString() {
+        return is(TokenType.STRING);
+    }
+
     @Override
     public String toString() {
         return getType().toString() + ":" + getSource() + " (" + line + ":" + pos + ")";

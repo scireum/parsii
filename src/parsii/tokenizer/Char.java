@@ -99,7 +99,7 @@ public class Char implements Position {
     @Override
     public String toString() {
         if (isEndOfInput()) {
-            return "End Of Input";
+            return "<End Of Input>";
         } else {
             return String.valueOf(value);
         }
