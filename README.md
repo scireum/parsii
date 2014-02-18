@@ -5,6 +5,7 @@ Super fast and simple evaluator for mathematical expressions written in Java. Mo
 
 Using it is as simple as:
 
+```java
 Scope scope = Scope.create();   
 Variable a = scope.getVariable("a");   
 Expression expr = Parser.parse("3 + a * 4");   
@@ -12,6 +13,7 @@ a.setValue(4);
 System.out.println(expr.evaluate());   
 a.setValue(5);   
 System.out.println(expr.evaluate());
+```
 
 For your convenience: A pre-built jar can be found in the build directory.
 
@@ -25,6 +27,6 @@ parsii is available under:
     <dependency>
       <groupId>com.scireum</groupId>
       <artifactId>parsii</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
     </dependency>
 
