@@ -18,7 +18,7 @@ System.out.println(expr.evaluate());
 For your convenience: A pre-built jar can be found in the build directory.
 
 parsii is part of the open source initiative of scireum GmbH (http://www.scireum.de)   
-Check out or micro kernel called SIRIS: https://github.com/scireum/sirius
+Check out or micro kernel called SIRIUS: https://github.com/scireum/sirius
 
 ## Maven
 
