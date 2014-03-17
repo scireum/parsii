@@ -82,6 +82,7 @@ public class ParserTest {
         assertEquals(3d, Parser.parse("| 3 - 6 |").evaluate(), BinaryOperation.EPSILON);
         assertEquals(3d, Parser.parse("if(3 > 2 && 2 < 3, 2+1, 1+1)").evaluate(), BinaryOperation.EPSILON);
         assertEquals(2d, Parser.parse("if(3 < 2 || 2 > 3, 2+1, 1+1)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2d, Parser.parse("min(3,2)").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test

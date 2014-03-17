@@ -21,7 +21,7 @@ public abstract class BinaryFunction implements Function {
 
     @Override
     public int getNumberOfArguments() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -30,7 +30,7 @@ public abstract class BinaryFunction implements Function {
         if (Double.isNaN(a)) {
             return a;
         }
-        double b = args.get(0).evaluate();
+        double b = args.get(1).evaluate();
         if (Double.isNaN(b)) {
             return b;
         }
