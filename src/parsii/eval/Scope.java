@@ -8,9 +8,7 @@
 
 package parsii.eval;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -46,7 +44,7 @@ public class Scope {
      * defined as constants.
      * </p>
      *
-     * @return a new scope.
+     * @return a new scope and empty
      */
     public static Scope create() {
         Scope result = new Scope();
@@ -62,7 +60,7 @@ public class Scope {
         if (root == null) {
             root = new Scope();
             root.getVariable("pi").makeConstant(Math.PI);
-            root.getVariable("E").makeConstant(Math.E);
+            root.getVariable("euler").makeConstant(Math.E);
         }
 
         return root;
@@ -141,9 +139,9 @@ public class Scope {
     }
 
     /**
-     * Returns all variables known to this scope or one of its parent scopes.
+     * Returns all names of variables known to this scope or one of its parent scopes.
      *
-     * @return a set of all known variables.
+     * @return a set of all known variable names
      */
     public Set<String> getNames() {
         if (parent == null) {
@@ -152,6 +150,21 @@ public class Scope {
         Set<String> result = new TreeSet<String>();
         result.addAll(parent.getNames());
         result.addAll(context.keySet());
+        return result;
+    }
+
+    /**
+     * Returns all variables known to this scope or one of its parent scopes.
+     *
+     * @return a collection of all known variables
+     */
+    public Collection<Variable> getVariables() {
+        if (parent == null) {
+            return context.values();
+        }
+        List<Variable> result = new ArrayList<Variable>();
+        result.addAll(parent.getVariables());
+        result.addAll(context.values());
         return result;
     }
 }

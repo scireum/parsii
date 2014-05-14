@@ -77,7 +77,7 @@ public class ParserTest {
     @Test
     public void functions() throws ParseException {
         assertEquals(0d, Parser.parse("1 + sin(-pi) + cos(pi)").evaluate(), BinaryOperation.EPSILON);
-        assertEquals(4.72038341576d, Parser.parse("tan(sqrt(E ^ (pi * 3)))").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(4.72038341576d, Parser.parse("tan(sqrt(euler ^ (pi * 3)))").evaluate(), BinaryOperation.EPSILON);
         assertEquals(3d, Parser.parse("| 3 - 6 |").evaluate(), BinaryOperation.EPSILON);
         assertEquals(3d, Parser.parse("if(3 > 2 && 2 < 3, 2+1, 1+1)").evaluate(), BinaryOperation.EPSILON);
         assertEquals(2d, Parser.parse("if(3 < 2 || 2 > 3, 2+1, 1+1)").evaluate(), BinaryOperation.EPSILON);
@@ -138,6 +138,9 @@ public class ParserTest {
         assertTrue(s.getNames().contains("b"));
         assertTrue(s.getNames().contains("c"));
         assertFalse(s.getNames().contains("x"));
+
+        // pi and euler are always defined...
+        assertEquals(5, s.getVariables().size());
     }
 
 
