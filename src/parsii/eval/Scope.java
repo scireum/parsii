@@ -9,6 +9,8 @@
 package parsii.eval;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -135,6 +137,21 @@ public class Scope {
         Variable result = new Variable(name);
         context.put(name, result);
 
+        return result;
+    }
+
+    /**
+     * Returns all variables known to this scope or one of its parent scopes.
+     *
+     * @return a set of all known variables.
+     */
+    public Set<String> getNames() {
+        if (parent == null) {
+            return context.keySet();
+        }
+        Set<String> result = new TreeSet<String>();
+        result.addAll(parent.getNames());
+        result.addAll(context.keySet());
         return result;
     }
 }

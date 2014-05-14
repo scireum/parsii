@@ -13,8 +13,7 @@ import org.junit.Test;
 import parsii.eval.*;
 import parsii.tokenizer.ParseException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 
 /**
@@ -129,6 +128,16 @@ public class ParserTest {
         assertEquals(1d, Parser.parse("1n * 1G").evaluate(), BinaryOperation.EPSILON);
         assertEquals(1d, Parser.parse("(1M / 1k) * 1m").evaluate(), BinaryOperation.EPSILON);
         assertEquals(1d, Parser.parse("1u * 10 k * 1000  m * 0.1 k").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void getVariables() throws ParseException {
+        Scope s = Scope.create();
+        Parser.parse("a*b+c", s);
+        assertTrue(s.getNames().contains("a"));
+        assertTrue(s.getNames().contains("b"));
+        assertTrue(s.getNames().contains("c"));
+        assertFalse(s.getNames().contains("x"));
     }
 
 
