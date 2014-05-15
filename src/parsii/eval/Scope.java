@@ -139,18 +139,36 @@ public class Scope {
     }
 
     /**
+     * Returns all names of variables known to this scope (ignoring those of the parent scope).
+     *
+     * @return a set of all known variable names
+     */
+    public Set<String> getLocalNames() {
+        return context.keySet();
+    }
+
+    /**
      * Returns all names of variables known to this scope or one of its parent scopes.
      *
      * @return a set of all known variable names
      */
     public Set<String> getNames() {
         if (parent == null) {
-            return context.keySet();
+            return getLocalNames();
         }
         Set<String> result = new TreeSet<String>();
         result.addAll(parent.getNames());
-        result.addAll(context.keySet());
+        result.addAll(getLocalNames());
         return result;
+    }
+
+    /**
+     * Returns all variables known to this scope (ignoring those of the parent scope).
+     *
+     * @return a collection of all known variables
+     */
+    public Collection<Variable> getLocalVariables() {
+        return context.values();
     }
 
     /**
@@ -160,11 +178,11 @@ public class Scope {
      */
     public Collection<Variable> getVariables() {
         if (parent == null) {
-            return context.values();
+            return getLocalVariables();
         }
         List<Variable> result = new ArrayList<Variable>();
         result.addAll(parent.getVariables());
-        result.addAll(context.values());
+        result.addAll(getLocalVariables());
         return result;
     }
 }
