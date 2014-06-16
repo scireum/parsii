@@ -21,8 +21,11 @@ public interface Function {
     /**
      * Returns the number of expected arguments.
      * <p>If the function is called with a different number of arguments, an error will be created</p>
+     * <p>In order to support functions with a variable number of arguments, a negative number can be returned.
+     * This will essentially disable the check.</p>
      *
-     * @return the number of arguments expected by this function
+     * @return the number of arguments expected by this function or a negative number to indicate that this
+     * function accepts a variable number of arguments
      */
     int getNumberOfArguments();
 

@@ -13,6 +13,8 @@ import org.junit.Test;
 import parsii.eval.*;
 import parsii.tokenizer.ParseException;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 
@@ -82,6 +84,32 @@ public class ParserTest {
         assertEquals(3d, Parser.parse("if(3 > 2 && 2 < 3, 2+1, 1+1)").evaluate(), BinaryOperation.EPSILON);
         assertEquals(2d, Parser.parse("if(3 < 2 || 2 > 3, 2+1, 1+1)").evaluate(), BinaryOperation.EPSILON);
         assertEquals(2d, Parser.parse("min(3,2)").evaluate(), BinaryOperation.EPSILON);
+
+        // Test a var arg method...
+        Parser.registerFunction("avg", new Function() {
+            @Override
+            public int getNumberOfArguments() {
+                return -1;
+            }
+
+            @Override
+            public double eval(List<Expression> args) {
+                double avg = 0;
+                if (args.isEmpty()) {
+                    return avg;
+                }
+                for(Expression e : args) {
+                    avg += e.evaluate();
+                }
+                return avg / args.size();
+            }
+
+            @Override
+            public boolean isNaturalFunction() {
+                return true;
+            }
+        });
+        assertEquals(3.25d, Parser.parse("avg(3,2,1,7)").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test

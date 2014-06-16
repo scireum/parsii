@@ -433,7 +433,7 @@ public class Parser {
         if (fun == null) {
             return Constant.EMPTY;
         }
-        if (call.getParameters().size() != fun.getNumberOfArguments()) {
+        if (call.getParameters().size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
             errors.add(ParseError.error(funToken,
                     String.format(
                             "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
