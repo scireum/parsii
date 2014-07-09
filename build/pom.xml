@@ -4,7 +4,7 @@
     <artifactId>parsii</artifactId>
     <packaging>jar</packaging>
     <name>parsii</name>
-    <version>1.3</version>
+    <version>1.4-SNAPSHOT</version>
     <description>parsii is a super fast and lightweight parser and expression evaluator</description>
     <url>https://github.com/scireum/parsii</url>
     <licenses>
