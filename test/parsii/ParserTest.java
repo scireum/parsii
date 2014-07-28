@@ -10,6 +10,7 @@ package parsii;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import parsii.eval.*;
 import parsii.tokenizer.ParseException;
 
@@ -25,6 +26,12 @@ import static org.junit.Assert.*;
  * @since 2013/09
  */
 public class ParserTest {
+	
+    @Test
+    public void limit_double() throws ParseException {
+    	assertEquals(0.3d, Parser.parse("0.3+10^6-10^6").evaluate(), BinaryOperation.EPSILON);
+    }
+    
     @Test
     public void simple() throws ParseException {
         assertEquals(-109d, Parser.parse("1 - (10 - -100)").evaluate(), BinaryOperation.EPSILON);
