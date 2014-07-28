@@ -182,8 +182,9 @@ public class Tokenizer extends Lookahead<Token> {
         }
 
         problemCollector.add(ParseError.error(input.current(),
-                String.format("Invalid character in input: '%s'",
-                        input.current().getStringValue())));
+                                              String.format("Invalid character in input: '%s'",
+                                                            input.current().getStringValue())
+        ));
         input.consume();
         return fetch();
     }
@@ -238,7 +239,7 @@ public class Tokenizer extends Lookahead<Token> {
      *
      * @param string the string to check
      * @return <tt>true</tt> if the next characters of the input match the given string, <tt>false</tt>
-     *         otherwise
+     * otherwise
      */
     protected boolean canConsumeThisString(String string) {
         if (string == null) {
@@ -330,8 +331,9 @@ public class Tokenizer extends Lookahead<Token> {
                 result.addToSource(input.consume());
                 if (!handleStringEscape(separator, escapeChar, result)) {
                     problemCollector.add(ParseError.error(input.next(),
-                            String.format("Cannot use '%s' as escaped character",
-                                    input.next().getStringValue())));
+                                                          String.format("Cannot use '%s' as escaped character",
+                                                                        input.next().getStringValue())
+                    ));
                 }
             } else {
                 result.addToContent(input.consume());
@@ -420,9 +422,9 @@ public class Tokenizer extends Lookahead<Token> {
      */
     protected Token handleKeywords(Token idToken) {
         String keyword = keywordsCaseSensitive ? keywords.get(idToken.getContents()
-                .intern()) : keywords.get(idToken.getContents()
-                .toLowerCase()
-                .intern());
+                                                                     .intern()) : keywords.get(idToken.getContents()
+                                                                                                      .toLowerCase()
+                                                                                                      .intern());
         if (keyword != null) {
             Token keywordToken = Token.create(Token.TokenType.KEYWORD, idToken);
             keywordToken.setTrigger(keyword);
@@ -456,7 +458,6 @@ public class Tokenizer extends Lookahead<Token> {
      */
     protected Token fetchSpecialId() {
         Token result = Token.create(Token.TokenType.SPECIAL_ID, input.current());
-        StringBuilder sb = new StringBuilder();
         result.addToTrigger(input.consume());
         while (isIdentifierChar(input.current())) {
             result.addToContent(input.consume());
@@ -501,7 +502,8 @@ public class Tokenizer extends Lookahead<Token> {
             return false;
         }
 
-        if (isAtBracket(true) || isAtStartOfBlockComment() || isAtStartOfLineComment() || isAtStartOfNumber() || isAtStartOfIdentifier() || stringDelimiters.containsKey(ch.getValue())) {
+        if (isAtBracket(true) || isAtStartOfBlockComment() || isAtStartOfLineComment() || isAtStartOfNumber() || isAtStartOfIdentifier() || stringDelimiters
+                .containsKey(ch.getValue())) {
             return false;
         }
         return true;
@@ -516,7 +518,8 @@ public class Tokenizer extends Lookahead<Token> {
     protected Token fetchNumber() {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
-        while (input.current().isDigit() || (input.current().is(decimalSeparator, groupingSeparator) && input.next().isDigit())) {
+        while (input.current().isDigit() || (input.current().is(decimalSeparator, groupingSeparator) && input.next()
+                                                                                                             .isDigit())) {
             if (input.current().is(groupingSeparator)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(decimalSeparator)) {
