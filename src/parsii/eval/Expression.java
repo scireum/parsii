@@ -8,10 +8,12 @@
 
 package parsii.eval;
 
+import java.math.BigDecimal;
+
 /**
  * Represents the result of a parsed expression.
  * <p>
- * Can be evaluated to return a double value. If an error occurs <code>Double.NaN</code> will be returned.
+ * Can be evaluated to return a BigDecimal value. If an error occurs <code>null</code> will be returned.
  * </p>
  *
  * @author Andreas Haufler (aha@scireum.de)
@@ -20,11 +22,11 @@ package parsii.eval;
 public abstract class Expression {
 
     /**
-     * Evaluates the expression to a double number.
+     * Evaluates the expression to a BigDecimal number.
      *
-     * @return the double value as a result of evaluating this expression. Returns NaN if an error occurs
+     * @return the BigDecimal value as a result of evaluating this expression. Returns <code>null</code> if an error occurs
      */
-    public abstract double evaluate();
+    public abstract BigDecimal evaluate();
 
     /**
      * Returns a simplified version of this expression.

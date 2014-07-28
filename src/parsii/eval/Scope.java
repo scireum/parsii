@@ -8,7 +8,13 @@
 
 package parsii.eval;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -59,8 +65,8 @@ public class Scope {
     private static Scope getRootScope() {
         if (root == null) {
             root = new Scope();
-            root.getVariable("pi").makeConstant(Math.PI);
-            root.getVariable("euler").makeConstant(Math.E);
+               root.getVariable("pi").makeConstant(new BigDecimal("3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214"));
+            root.getVariable("euler").makeConstant(new BigDecimal("2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746"));
         }
 
         return root;

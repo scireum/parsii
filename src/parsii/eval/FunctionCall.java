@@ -8,6 +8,7 @@
 
 package parsii.eval;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class FunctionCall extends Expression {
     private Function function;
 
     @Override
-    public double evaluate() {
+    public BigDecimal evaluate() {
         return function.eval(parameters);
     }
 

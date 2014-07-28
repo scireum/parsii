@@ -8,6 +8,11 @@
 
 package parsii.eval;
 
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.ZERO;
+
+import java.math.BigDecimal;
+
 /**
  * Represents a binary operation.
  * <p>
@@ -42,12 +47,6 @@ public class BinaryOperation extends Expression {
     private Expression left;
     private Expression right;
     private boolean sealed = false;
-
-    /**
-     * When comparing two double values, those are considered equal, if their difference is lower than the defined
-     * epsilon. This is way better than relying on an exact comparison due to rounding errors
-     */
-    public static final double EPSILON = 0.0000000001;
 
     public BinaryOperation(Op op, Expression left, Expression right) {
         this.op = op;
@@ -114,39 +113,44 @@ public class BinaryOperation extends Expression {
         return sealed;
     }
 
-
     @Override
-    public double evaluate() {
-        double a = left.evaluate();
-        double b = right.evaluate();
-        if (op == Op.ADD) {
-            return a + b;
-        } else if (op == Op.SUBTRACT) {
-            return a - b;
-        } else if (op == Op.MULTIPLY) {
-            return a * b;
-        } else if (op == Op.DIVIDE) {
-            return a / b;
-        } else if (op == Op.POWER) {
-            return Math.pow(a, b);
-        } else if (op == Op.MODULO) {
-            return a % b;
-        } else if (op == Op.LT) {
-            return a < b ? 1 : 0;
-        } else if (op == Op.LT_EQ) {
-            return a < b || Math.abs(a - b) < EPSILON ? 1 : 0;
-        } else if (op == Op.GT) {
-            return a > b ? 1 : 0;
-        } else if (op == Op.GT_EQ) {
-            return a > b || Math.abs(a - b) > EPSILON ? 1 : 0;
-        } else if (op == Op.EQ) {
-            return Math.abs(a - b) < EPSILON ? 1 : 0;
-        } else if (op == Op.NEQ) {
-            return Math.abs(a - b) > EPSILON ? 1 : 0;
-        } else if (op == Op.AND) {
-            return a == 1 && b == 1 ? 1 : 0;
-        } else if (op == Op.OR) {
-            return a == 1 || b == 1 ? 1 : 0;
+    public BigDecimal evaluate() {
+        BigDecimal a = left.evaluate();
+        BigDecimal b = right.evaluate();
+        try {
+
+            if (op == Op.ADD) {
+                return a.add(b);
+            } else if (op == Op.SUBTRACT) {
+                return a.subtract(b);
+            } else if (op == Op.MULTIPLY) {
+                return a.multiply(b);
+            } else if (op == Op.DIVIDE) {
+                return a.divide(b);
+            } else if (op == Op.POWER) {
+                // FIXME replace the Math implementation with better version.
+                return BigDecimal.valueOf(Math.pow(a.doubleValue(), b.doubleValue()));
+            } else if (op == Op.MODULO) {
+                return a.remainder(b);
+            } else if (op == Op.LT) {
+                return a.compareTo(b) < 0 ? ONE : ZERO;
+            } else if (op == Op.LT_EQ) {
+                return a.compareTo(b) <= 0 ? ONE : ZERO;
+            } else if (op == Op.GT) {
+                return a.compareTo(b) > 0 ? ONE : ZERO;
+            } else if (op == Op.GT_EQ) {
+                return a.compareTo(b) >= 0 ? ONE : ZERO;
+            } else if (op == Op.EQ) {
+                return a.compareTo(b) == 0 ? ONE : ZERO;
+            } else if (op == Op.NEQ) {
+                return a.compareTo(b) != 0 ? ONE : ZERO;
+            } else if (op == Op.AND) {
+                return a.compareTo(ONE) == 0 && b.compareTo(ONE) == 0 ? ONE : ZERO;
+            } else if (op == Op.OR) {
+                return a.compareTo(ONE) == 0 || b.compareTo(ONE) == 0 ? ONE : ZERO;
+            }
+        } catch (Throwable t) {
+            return null;
         }
 
         throw new UnsupportedOperationException(String.valueOf(op));
@@ -180,12 +184,12 @@ public class BinaryOperation extends Expression {
                         if (childOp.left.isConstant()) {
                             if (op == Op.ADD) {
                                 return new BinaryOperation(op,
-                                                           new Constant(left.evaluate() + childOp.left.evaluate()),
+                                                           new Constant(left.evaluate().add(childOp.left.evaluate())),
                                                            childOp.right);
                             }
                             if (op == Op.MULTIPLY) {
                                 return new BinaryOperation(op,
-                                                           new Constant(left.evaluate() * childOp.left.evaluate()),
+                                                           new Constant(left.evaluate().multiply(childOp.left.evaluate())),
                                                            childOp.right);
                             }
                         }

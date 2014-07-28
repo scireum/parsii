@@ -9,7 +9,11 @@
 package parsii.tokenizer;
 
 import java.io.Reader;
-import java.util.*;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Turns a stream of characters ({@link Reader} into a stream of {@link Token}, supporting lookahead.
@@ -456,7 +460,7 @@ public class Tokenizer extends Lookahead<Token> {
      */
     protected Token fetchSpecialId() {
         Token result = Token.create(Token.TokenType.SPECIAL_ID, input.current());
-        StringBuilder sb = new StringBuilder();
+
         result.addToTrigger(input.consume());
         while (isIdentifierChar(input.current())) {
             result.addToContent(input.consume());
