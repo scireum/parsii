@@ -1,5 +1,4 @@
-This fork of the scireum/parsii should reduce the aberrations by using BigDecimal in place of double.
-
+This fork of the scireum/parsii (https://github.com/scireum/parsii) should reduce the aberrations by using BigDecimal in place of double.
 
 parsii
 ======
