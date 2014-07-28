@@ -8,17 +8,22 @@
 
 package parsii.eval;
 
-import parsii.tokenizer.ParseError;
-import parsii.tokenizer.ParseException;
-import parsii.tokenizer.Token;
-import parsii.tokenizer.Tokenizer;
+import static java.math.BigDecimal.ZERO;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import com.sun.corba.se.spi.extension.ZeroPortPolicy;
+
+import parsii.tokenizer.ParseError;
+import parsii.tokenizer.ParseException;
+import parsii.tokenizer.Token;
+import parsii.tokenizer.Tokenizer;
 
 /**
  * Parses a given mathematical expression into an abstract syntax tree which can be evaluated.
@@ -349,7 +354,7 @@ public class Parser {
     protected Expression atom() {
         if (tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
-            BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
+            BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(ZERO), atom());
             result.seal();
             return result;
         }
@@ -377,26 +382,26 @@ public class Parser {
             return new VariableReference(scope.getVariable(tokenizer.consume().getContents()));
         }
         if (tokenizer.current().isNumber()) {
-            double value = Double.parseDouble(tokenizer.consume().getContents());
+            BigDecimal value = new BigDecimal (tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {
                 String quantifier = tokenizer.current().getContents().intern();
                 if ("n" == quantifier) {
-                    value /= 1000000000d;
+                    value = value.movePointLeft(9);
                     tokenizer.consume();
                 } else if ("u" == quantifier) {
-                    value /= 1000000d;
+                    value = value.movePointLeft(6);
                     tokenizer.consume();
                 } else if ("m" == quantifier) {
-                    value /= 1000d;
+                    value = value.movePointLeft(3);
                     tokenizer.consume();
                 } else if ("K" == quantifier || "k" == quantifier) {
-                    value *= 1000d;
+                    value = value.movePointRight(3);
                     tokenizer.consume();
                 } else if ("M" == quantifier) {
-                    value *= 1000000d;
+                    value = value.movePointRight(6);
                     tokenizer.consume();
                 } else if ("G" == quantifier) {
-                    value *= 1000000000d;
+                    value = value.movePointRight(9);
                     tokenizer.consume();
                 }
             }

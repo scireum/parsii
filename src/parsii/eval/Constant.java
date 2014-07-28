@@ -8,6 +8,8 @@
 
 package parsii.eval;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a constant numeric expression.
  *
@@ -15,19 +17,19 @@ package parsii.eval;
  * @since 2013/09
  */
 public class Constant extends Expression {
-    private double value;
+    private BigDecimal value;
 
     /**
      * Used as dummy expression by the parser if an error occurs while parsing.
      */
-    public static final Constant EMPTY = new Constant(Double.NaN);
+    public static final Constant EMPTY = new Constant(null);
 
-    public Constant(double value) {
+    public Constant(BigDecimal value) {
         this.value = value;
     }
 
     @Override
-    public double evaluate() {
+    public BigDecimal evaluate() {
         return value;
     }
 

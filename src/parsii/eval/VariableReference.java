@@ -8,6 +8,8 @@
 
 package parsii.eval;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a reference to a variable.
  *
@@ -28,7 +30,7 @@ public class VariableReference extends Expression {
     }
 
     @Override
-    public double evaluate() {
+    public BigDecimal evaluate() {
         return var.getValue();
     }
 

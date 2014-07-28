@@ -8,6 +8,7 @@
 
 package parsii.eval;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -25,9 +26,9 @@ public abstract class UnaryFunction implements Function {
     }
 
     @Override
-    public double eval(List<Expression> args) {
-        double a = args.get(0).evaluate();
-        if (Double.isNaN(a)) {
+    public BigDecimal eval(List<Expression> args) {
+        BigDecimal a = args.get(0).evaluate();
+        if (a == null) {
             return a;
         }
         return eval(a);
@@ -39,7 +40,7 @@ public abstract class UnaryFunction implements Function {
      * @param a the argument of the function
      * @return the result of calling the function with a as argument
      */
-    protected abstract double eval(double a);
+    protected abstract BigDecimal eval(BigDecimal a);
 
     @Override
     public boolean isNaturalFunction() {
