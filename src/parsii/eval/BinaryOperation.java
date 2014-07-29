@@ -12,6 +12,7 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * Represents a binary operation.
@@ -42,6 +43,8 @@ public class BinaryOperation extends Expression {
             this.priority = priority;
         }
     }
+    
+    MathContext mathContext = MathContext.DECIMAL128;
 
     private final Op op;
     private Expression left;
@@ -117,6 +120,7 @@ public class BinaryOperation extends Expression {
     public BigDecimal evaluate() {
         BigDecimal a = left.evaluate();
         BigDecimal b = right.evaluate();
+        
         try {
 
             if (op == Op.ADD) {
@@ -126,7 +130,7 @@ public class BinaryOperation extends Expression {
             } else if (op == Op.MULTIPLY) {
                 return a.multiply(b);
             } else if (op == Op.DIVIDE) {
-                return a.divide(b);
+                return a.divide(b, mathContext);
             } else if (op == Op.POWER) {
                 // FIXME replace the Math implementation with better version.
                 return BigDecimal.valueOf(Math.pow(a.doubleValue(), b.doubleValue()));
