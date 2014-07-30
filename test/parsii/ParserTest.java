@@ -65,16 +65,18 @@ public class ParserTest {
         org.junit.Assert.assertTrue("the value '" + actual + "' is not the expected value ('" + expected + "')", BigDecimal
                 .valueOf(expected).compareTo(actual) == 0);
     }
+
     private void assertEquals(double expected, BigDecimal actual, double delta) {
         BigDecimal expectedBig = BigDecimal.valueOf(expected);
         BigDecimal deltaBig = BigDecimal.valueOf(delta);
-        
+
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(9);
         df.setMinimumFractionDigits(0);
         df.setGroupingUsed(false);
-        
-        org.junit.Assert.assertTrue("the value '" + df.format(actual) + "' is not the expected value ('" + expected + "')", expectedBig.subtract(actual).abs().compareTo(deltaBig) == -1);
+
+        org.junit.Assert.assertTrue("the value '" + df.format(actual) + "' is not the expected value ('" + expected + "')",
+                expectedBig.subtract(actual).abs().compareTo(deltaBig) == -1);
     }
 
     @Test
@@ -109,10 +111,10 @@ public class ParserTest {
     public void functions() throws ParseException {
         /* the most functions based on Math implementation. So we mused expect with inaccuracy */
         final double EPSILON = 0.0000000001;
-        
-//        assertEquals(0d, Parser.parse("1 + sin(-pi) + cos(pi)").evaluate(), EPSILON);
-//        assertEquals(9.424777960769379715d, Parser.parse("pi * 3").evaluate(), EPSILON);
-//        assertEquals(8103.08392757538400d, Parser.parse("euler ^ 9  ").evaluate(), EPSILON);
+
+        assertEquals(0d, Parser.parse("1 + sin(-pi) + cos(pi)").evaluate(), EPSILON);
+        assertEquals(9.424777960769379715d, Parser.parse("pi * 3").evaluate(), EPSILON);
+        assertEquals(8103.08392757538400d, Parser.parse("euler ^ 9  ").evaluate(), EPSILON);
         assertEquals(12391.6478079166974d, Parser.parse("euler ^ (pi * 3)").evaluate(), EPSILON);
         assertEquals(111.31777848985622d, Parser.parse("sqrt(euler ^ (pi * 3))").evaluate(), EPSILON);
         assertEquals(4.72038341576d, Parser.parse("tan(sqrt(euler ^ (pi * 3)))").evaluate(), EPSILON);
