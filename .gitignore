@@ -3,3 +3,6 @@ out
 .idea
 parsii.iml
 build/docs
+/bin/
+/.classpath
+/.project
