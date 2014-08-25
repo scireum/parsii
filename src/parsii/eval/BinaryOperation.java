@@ -138,7 +138,7 @@ public class BinaryOperation extends Expression {
         } else if (op == Op.GT) {
             return a > b ? 1 : 0;
         } else if (op == Op.GT_EQ) {
-            return a > b || Math.abs(a - b) > EPSILON ? 1 : 0;
+            return a > b || Math.abs(a - b) < EPSILON ? 1 : 0;
         } else if (op == Op.EQ) {
             return Math.abs(a - b) < EPSILON ? 1 : 0;
         } else if (op == Op.NEQ) {

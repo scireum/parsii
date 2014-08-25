@@ -150,6 +150,15 @@ public class ParserTest {
     }
 
     @Test
+    public void relationalOperators() throws ParseException {
+        // Test for Issue with >= and <= operators (#4)
+        assertEquals(1d, Parser.parse("5 <= 5").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1d, Parser.parse("5 >= 5").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0d, Parser.parse("5 < 5").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0d, Parser.parse("5 > 5").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
     public void quantifiers() throws ParseException {
         assertEquals(1000d, Parser.parse("1K").evaluate(), BinaryOperation.EPSILON);
         assertEquals(1000d, Parser.parse("1M * 1m").evaluate(), BinaryOperation.EPSILON);
