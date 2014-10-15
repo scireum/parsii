@@ -161,6 +161,12 @@ public class Parser {
      */
     protected Expression parse() throws ParseException {
         Expression result = expression().simplify();
+        if (tokenizer.current().isNotEnd()) {
+            Token token = tokenizer.consume();
+            errors.add(ParseError.error(token,
+                                        String.format("Unexpected token: '%s'. Expected an expression.",
+                                                      token.getSource())));
+        }
         if (errors.size() > 0) {
             throw ParseException.create(errors);
         }
@@ -398,14 +404,19 @@ public class Parser {
                 } else if ("G" == quantifier) {
                     value *= 1000000000d;
                     tokenizer.consume();
+                } else {
+                    Token token = tokenizer.consume();
+                    errors.add(ParseError.error(token,
+                                                String.format("Unexpected token: '%s'. Expected a valid quantifier.",
+                                                              token.getSource())));
                 }
             }
             return new Constant(value);
         }
         Token token = tokenizer.consume();
         errors.add(ParseError.error(token,
-                String.format("Unexpected token: '%s'. Expected an expression.",
-                        token.getSource())));
+                                    String.format("Unexpected token: '%s'. Expected an expression.",
+                                                  token.getSource())));
         return Constant.EMPTY;
     }
 
@@ -435,11 +446,11 @@ public class Parser {
         }
         if (call.getParameters().size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
             errors.add(ParseError.error(funToken,
-                    String.format(
-                            "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                            funToken.getContents(),
-                            fun.getNumberOfArguments(),
-                            call.getParameters().size())));
+                                        String.format(
+                                                "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
+                                                funToken.getContents(),
+                                                fun.getNumberOfArguments(),
+                                                call.getParameters().size())));
             return Constant.EMPTY;
         }
         return call;
@@ -460,9 +471,9 @@ public class Parser {
             tokenizer.consume();
         } else {
             errors.add(ParseError.error(tokenizer.current(),
-                    String.format("Unexpected token '%s'. Expected: '%s'",
-                            tokenizer.current().getSource(),
-                            trigger)));
+                                        String.format("Unexpected token '%s'. Expected: '%s'",
+                                                      tokenizer.current().getSource(),
+                                                      trigger)));
         }
     }
 

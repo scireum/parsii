@@ -144,8 +144,25 @@ public class ParserTest {
         // We expect the parser to continue after an recoverable error!
         try {
             Parser.parse("test(1 2)+sin(1,2)*34-34.45.45+");
+            assertTrue(false);
         } catch (ParseException e) {
             assertEquals(5, e.getErrors().size());
+        }
+
+        // We expect the parser to report an invalid quantifier.
+        try {
+            Parser.parse("1x");
+            assertTrue(false);
+        } catch (ParseException e) {
+            assertEquals(1, e.getErrors().size());
+        }
+
+        // We expect the parser to report an unfinished expression
+        try {
+            Parser.parse("1(");
+            assertTrue(false);
+        } catch (ParseException e) {
+            assertEquals(1, e.getErrors().size());
         }
     }
 
