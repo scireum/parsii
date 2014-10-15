@@ -27,6 +27,6 @@ parsii is available under:
     <dependency>
       <groupId>com.scireum</groupId>
       <artifactId>parsii</artifactId>
-      <version>1.1</version>
+      <version>1.3</version> <!-- or 1.4-SNAPSHOT -->
     </dependency>
 
