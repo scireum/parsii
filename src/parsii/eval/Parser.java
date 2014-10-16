@@ -147,7 +147,7 @@ public class Parser {
     /*
      * Use one of the static methods to parse an expression
      */
-    private Parser(Reader input, Scope scope) {
+    protected Parser(Reader input, Scope scope) {
         this.scope = scope;
         tokenizer = new Tokenizer(input);
         tokenizer.setProblemCollector(errors);
@@ -302,7 +302,7 @@ public class Parser {
      * Reorders the operands of the given operation in order to generate a "left handed" AST which performs evaluations
      * in natural order (from left to right).
      */
-    private Expression reOrder(Expression left, Expression right, BinaryOperation.Op op) {
+    protected Expression reOrder(Expression left, Expression right, BinaryOperation.Op op) {
         if (right instanceof BinaryOperation) {
             BinaryOperation rightOp = (BinaryOperation) right;
             if (!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
@@ -313,7 +313,7 @@ public class Parser {
         return new BinaryOperation(op, left, right);
     }
 
-    private void replaceLeft(BinaryOperation target, Expression newLeft, BinaryOperation.Op op) {
+    protected void replaceLeft(BinaryOperation target, Expression newLeft, BinaryOperation.Op op) {
         if (target.getLeft() instanceof BinaryOperation) {
             BinaryOperation leftOp = (BinaryOperation) target.getLeft();
             if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
