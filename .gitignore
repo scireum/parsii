@@ -1,5 +1,3 @@
-build/dist
-out
 .idea
+target
 parsii.iml
-build/docs
