@@ -382,6 +382,10 @@ public class Parser {
             }
             return new VariableReference(scope.getVariable(tokenizer.consume().getContents()));
         }
+        if (tokenizer.current().isSymbol("+") && tokenizer.next().isNumber()) {
+            // Parse numbers with a leading + sign like +2.02 by simply ignoring the +
+            tokenizer.consume();
+        }
         if (tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {
