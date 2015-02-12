@@ -139,13 +139,13 @@ public class Tokenizer extends Lookahead<Token> {
         }
 
         // Handle (and ignore) line comments
-        if (isAtStartOfLineComment()) {
+        if (isAtStartOfLineComment(true)) {
             skipToEndOfLine();
             return fetch();
         }
 
         // Handle (and ignore) block comments
-        if (isAtStartOfBlockComment()) {
+        if (isAtStartOfBlockComment(true)) {
             skipBlockComment();
             return fetch();
         }
@@ -183,8 +183,7 @@ public class Tokenizer extends Lookahead<Token> {
 
         problemCollector.add(ParseError.error(input.current(),
                                               String.format("Invalid character in input: '%s'",
-                                                            input.current().getStringValue())
-        ));
+                                                            input.current().getStringValue())));
         input.consume();
         return fetch();
     }
@@ -204,13 +203,23 @@ public class Tokenizer extends Lookahead<Token> {
     /**
      * Determines if the underlying input is looking at the start of a number.
      * <p>
-     * By default this is either indicated by a digit or by '-' followed by  digit.
+     * By default this is either indicated by a digit or by '-' followed by a digit or a '.' followed by a digit.
      * </p>
      *
      * @return <tt>true</tt> if the current input is the start of a numeric constant, <tt>false</tt> otherwise
      */
     protected boolean isAtStartOfNumber() {
-        return input.current().isDigit() || input.current().is('-') && input.next().isDigit();
+        if (input.current().isDigit()) {
+            return true;
+        } else if (input.current().is('-') && input.next().isDigit()) {
+            return true;
+        } else if (input.current().is('-') && input.next().is('.') && input.next(2).isDigit()) {
+            return true;
+        } else if (input.current().is('.') && input.next().isDigit()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -237,11 +246,12 @@ public class Tokenizer extends Lookahead<Token> {
     /**
      * Checks if the next characters, starting from the current, match the given string.
      *
-     * @param string the string to check
+     * @param string  the string to check
+     * @param consume determines if the matched string should be consumed immediately
      * @return <tt>true</tt> if the next characters of the input match the given string, <tt>false</tt>
      * otherwise
      */
-    protected boolean canConsumeThisString(String string) {
+    protected boolean canConsumeThisString(String string, boolean consume) {
         if (string == null) {
             return false;
         }
@@ -250,21 +260,24 @@ public class Tokenizer extends Lookahead<Token> {
                 return false;
             }
         }
-        input.consume(string.length());
+        if (consume) {
+            input.consume(string.length());
+        }
         return true;
     }
 
     /**
      * Checks if the underlying input is looking at a start of line comment.
-     * <p>
-     * If a line comment is detected, any characters indicating this are consumed by this method
-     * </p>
+     * <p/>
+     * If a line comment is detected, any characters indicating this are consumed by this method if
+     * <tt>consume</tt> is <tt>true</tt>.
      *
+     * @param consume determines if the matched comment start should be consumed immediately
      * @return <tt>true</tt> if the next character(s) of the input start a line comment, <tt>false</tt> otherwise
      */
-    protected boolean isAtStartOfLineComment() {
+    protected boolean isAtStartOfLineComment(boolean consume) {
         if (lineComment != null) {
-            return canConsumeThisString(lineComment);
+            return canConsumeThisString(lineComment, consume);
         } else {
             return false;
         }
@@ -281,26 +294,25 @@ public class Tokenizer extends Lookahead<Token> {
 
     /**
      * Checks if the underlying input is looking at a start of block comment
-     * <p>
-     * If a block comment is detected, any characters indicating this are consumed by this method
-     * </p>
+     * <p/>
+     * If a block comment is detected, any characters indicating this are consumed by this method if <tt>consume</tt>
+     * is <tt>true</tt> .
      *
      * @return <tt>true</tt> if the next character(s) of the input start a block comment, <tt>false</tt> otherwise
      */
-    protected boolean isAtStartOfBlockComment() {
-        return canConsumeThisString(blockCommentStart);
+    protected boolean isAtStartOfBlockComment(boolean consume) {
+        return canConsumeThisString(blockCommentStart, consume);
     }
 
     /**
      * Checks if the underlying input is looking at a end of block comment
-     * <p>
+     * <p/>
      * If an end of block comment is detected, any characters indicating this are consumed by this method
-     * </p>
      *
      * @return <tt>true</tt> if the next character(s) of the input end a block comment, <tt>false</tt> otherwise
      */
     protected boolean isAtEndOfBlockComment() {
-        return canConsumeThisString(blockCommentEnd);
+        return canConsumeThisString(blockCommentEnd, true);
     }
 
     /**
@@ -332,8 +344,7 @@ public class Tokenizer extends Lookahead<Token> {
                 if (!handleStringEscape(separator, escapeChar, result)) {
                     problemCollector.add(ParseError.error(input.next(),
                                                           String.format("Cannot use '%s' as escaped character",
-                                                                        input.next().getStringValue())
-                    ));
+                                                                        input.next().getStringValue())));
                 }
             } else {
                 result.addToContent(input.consume());
@@ -502,7 +513,7 @@ public class Tokenizer extends Lookahead<Token> {
             return false;
         }
 
-        if (isAtBracket(true) || isAtStartOfBlockComment() || isAtStartOfLineComment() || isAtStartOfNumber() || isAtStartOfIdentifier() || stringDelimiters
+        if (isAtBracket(true) || isAtStartOfBlockComment(false) || isAtStartOfLineComment(false) || isAtStartOfNumber() || isAtStartOfIdentifier() || stringDelimiters
                 .containsKey(ch.getValue())) {
             return false;
         }

@@ -63,11 +63,25 @@ public class ParserTest {
 
     @Test
     public void signed() throws ParseException {
-        assertEquals(-2.02, Parser.parse("-2.02").evaluate(), 0.0000001);
-        assertEquals(2.02, Parser.parse("+2.02").evaluate(), 0.0000001);
-        assertEquals(1.01, Parser.parse("+2.02 + -1.01").evaluate(), 0.0000001);
-        assertEquals(-4.03, Parser.parse("-2.02 - +2.01").evaluate(), 0.0000001);
-        assertEquals(3.03, Parser.parse("+2.02 + +1.01").evaluate(), 0.0000001);
+        assertEquals(-2.02, Parser.parse("-2.02").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2.02, Parser.parse("+2.02").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1.01, Parser.parse("+2.02 + -1.01").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-4.03, Parser.parse("-2.02 - +2.01").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(3.03, Parser.parse("+2.02 + +1.01").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void blockComment() throws ParseException {
+        assertEquals(29, Parser.parse("27+ /*xxx*/ 2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(29, Parser.parse("27+/*xxx*/ 2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(29, Parser.parse("27/*xxx*/+2").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void startingWithDecimalPoint() throws ParseException {
+        assertEquals(.2, Parser.parse(".2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(.4, Parser.parse(".2+.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(.4, Parser.parse(".6+-.2").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test
@@ -107,7 +121,7 @@ public class ParserTest {
                 if (args.isEmpty()) {
                     return avg;
                 }
-                for(Expression e : args) {
+                for (Expression e : args) {
                     avg += e.evaluate();
                 }
                 return avg / args.size();
