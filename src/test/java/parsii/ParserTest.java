@@ -80,8 +80,17 @@ public class ParserTest {
     @Test
     public void startingWithDecimalPoint() throws ParseException {
         assertEquals(.2, Parser.parse(".2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(.2, Parser.parse("+.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(.4, Parser.parse(".2+.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(.4, Parser.parse(".6+-.2").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void signedParentheses() throws ParseException {
+        assertEquals(0.2, Parser.parse("-(-0.2)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1.2, Parser.parse("1-(-0.2)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.8, Parser.parse("1+(-0.2)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2.2, Parser.parse("+(2.2)").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test

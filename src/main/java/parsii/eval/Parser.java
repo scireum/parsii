@@ -359,6 +359,11 @@ public class Parser {
             result.seal();
             return result;
         }
+        if (tokenizer.current().isSymbol("+") && tokenizer.next().isSymbol("(")) {
+            // Support for brackets with a leading + like "+(2.2)" in this case we simply ignore the
+            // + sign
+            tokenizer.consume();
+        }
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
             Expression result = expression();
