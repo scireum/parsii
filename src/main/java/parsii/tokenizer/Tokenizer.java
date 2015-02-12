@@ -479,8 +479,8 @@ public class Tokenizer extends Lookahead<Token> {
     /**
      * Reads and returns a symbol.
      * <p>
-     * A symbol is one or more characters, which don't match any other token type. In most cases, this will be
-     * operators like + or **.
+     * A symbol are one or two characters, which don't match any other token type. In most cases, this will be
+     * operators like + or *.
      * </p>
      *
      * @return the parsed symbol as Token
@@ -488,7 +488,19 @@ public class Tokenizer extends Lookahead<Token> {
     protected Token fetchSymbol() {
         Token result = Token.create(Token.TokenType.SYMBOL, input.current());
         result.addToTrigger(input.consume());
-        while (isSymbolCharacter(input.current())) {
+        if (result.isSymbol("*") && input.current().is('*')) {
+            result.addToTrigger(input.consume());
+        } else if (result.isSymbol("*") && input.current().is('*')) {
+            result.addToTrigger(input.consume());
+        } else if (result.isSymbol("&") && input.current().is('&')) {
+            result.addToTrigger(input.consume());
+        } else if (result.isSymbol("|") && input.current().is('|')) {
+            result.addToTrigger(input.consume());
+        } else if (result.isSymbol("<") && input.current().is('=')) {
+            result.addToTrigger(input.consume());
+        } else if (result.isSymbol(">") && input.current().is('=')) {
+            result.addToTrigger(input.consume());
+        } else if (result.isSymbol("!") && input.current().is('=')) {
             result.addToTrigger(input.consume());
         }
         return result;
@@ -529,8 +541,10 @@ public class Tokenizer extends Lookahead<Token> {
     protected Token fetchNumber() {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
-        while (input.current().isDigit() || (input.current().is(decimalSeparator, groupingSeparator) && input.next()
-                                                                                                             .isDigit())) {
+        while (input.current().isDigit() || input.current().is(decimalSeparator) || (input.current()
+                                                                                          .is(groupingSeparator) && input
+                .next()
+                .isDigit())) {
             if (input.current().is(groupingSeparator)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(decimalSeparator)) {

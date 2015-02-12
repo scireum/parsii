@@ -94,6 +94,19 @@ public class ParserTest {
     }
 
     @Test
+    public void trailingDecimalPoint() throws ParseException {
+        assertEquals(2., Parser.parse("2.").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void signedValueAfterOperand() throws ParseException {
+        assertEquals(-1.2, Parser.parse("1+-2.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(3.2, Parser.parse("1++2.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(6*-1.1, Parser.parse("6*-1.1").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(6*+1.1, Parser.parse("6*+1.1").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
     public void variables() throws ParseException {
         Scope scope = Scope.create();
 
