@@ -163,6 +163,16 @@ public class Functions {
     };
 
     /**
+     * Provides access to {@link Math#pow(double, double)}
+     */
+    public static final Function POW = new BinaryFunction() {
+        @Override
+        protected double eval(double a, double b) {
+            return Math.pow(a, b);
+        }
+    };
+
+    /**
      * Provides access to {@link Math#sqrt(double)}
      */
     public static final Function SQRT = new UnaryFunction() {

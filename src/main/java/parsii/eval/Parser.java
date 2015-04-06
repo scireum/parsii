@@ -92,6 +92,7 @@ public class Parser {
         registerFunction("ln", Functions.LN);
         registerFunction("log", Functions.LOG);
         registerFunction("sqrt", Functions.SQRT);
+        registerFunction("pow", Functions.POW);
         registerFunction("min", Functions.MIN);
         registerFunction("max", Functions.MAX);
         registerFunction("rnd", Functions.RND);
