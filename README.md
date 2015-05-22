@@ -1,6 +1,9 @@
 parsii
 ======
 
+If you have questions or are just curious, please feel welcome to join the chat room:
+[![Join the chat at https://gitter.im/scireum/sirius-kernel](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scireum/OpenSource?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Super fast and simple evaluator for mathematical expressions written in Java. More background information can be found in this blog post: http://andreas.haufler.info/2013/12/how-to-write-one-of-fastest-expression.html
 
 Using it is as simple as:
