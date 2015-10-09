@@ -8,6 +8,7 @@
 
 package parsii.eval;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Andreas Haufler (aha@scireum.de)
  * @since 2013/09
  */
-public class Scope {
+public class Scope implements Serializable {
     private Scope parent;
     private Map<String, Variable> context = new ConcurrentHashMap<String, Variable>();
 

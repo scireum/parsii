@@ -14,6 +14,7 @@ import parsii.tokenizer.Token;
 import parsii.tokenizer.Tokenizer;
 
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,8 @@ import java.util.TreeMap;
  * @author Andreas Haufler (aha@scireum.de)
  * @since 2013/09
  */
-public class Parser {
+public class Parser implements Serializable {
+
     private final Scope scope;
     private List<ParseError> errors = new ArrayList<ParseError>();
     private Tokenizer tokenizer;
