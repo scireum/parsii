@@ -13,17 +13,13 @@ package parsii.eval;
  * <p>
  * A binary operation has two sub-expressions. A set of supported operations is also defined. If both arguments are
  * constant, simplifying this expression will again lead to a constant expression.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class BinaryOperation extends Expression {
 
     /**
      * Enumerates the operations supported by this expression.
      */
-    public static enum Op {
+    public enum Op {
         ADD(3), SUBTRACT(3), MULTIPLY(4), DIVIDE(4), MODULO(4), POWER(5), LT(2), LT_EQ(2), EQ(2), GT_EQ(2), GT(2), NEQ(2), AND(
                 1), OR(1);
 
@@ -33,7 +29,7 @@ public class BinaryOperation extends Expression {
 
         private final int priority;
 
-        private Op(int priority) {
+        Op(int priority) {
             this.priority = priority;
         }
     }
@@ -49,6 +45,13 @@ public class BinaryOperation extends Expression {
      */
     public static final double EPSILON = 0.0000000001;
 
+    /**
+     * Creates a new binary operator for the given operator and operands.
+     *
+     * @param op    the operator of the operation
+     * @param left  the left operand
+     * @param right the right operand
+     */
     public BinaryOperation(Op op, Expression left, Expression right) {
         this.op = op;
         this.left = left;
@@ -82,7 +85,6 @@ public class BinaryOperation extends Expression {
         this.left = left;
     }
 
-
     /**
      * Returns the right operand
      *
@@ -96,9 +98,6 @@ public class BinaryOperation extends Expression {
      * Marks an operation as sealed, meaning that re-ordering or operations on the same level must not be re-ordered.
      * <p>
      * Binary operations are sealed if they're e.g. surrounded by braces.
-     * </p>
-     *
-     * @see Parser#reOrder(Expression, Expression, parsii.eval.BinaryOperation.Op)
      */
     public void seal() {
         sealed = true;
@@ -108,12 +107,11 @@ public class BinaryOperation extends Expression {
      * Determines if the operation is sealed and operands must not be re-ordered.
      *
      * @return <tt>true</tt> if the operation is protected by braces and operands might not be exchanged with
-     *         operations nearby.
+     * operations nearby.
      */
     public boolean isSealed() {
         return sealed;
     }
-
 
     @Override
     public double evaluate() {
@@ -121,32 +119,45 @@ public class BinaryOperation extends Expression {
         double b = right.evaluate();
         if (op == Op.ADD) {
             return a + b;
-        } else if (op == Op.SUBTRACT) {
+        }
+        if (op == Op.SUBTRACT) {
             return a - b;
-        } else if (op == Op.MULTIPLY) {
+        }
+        if (op == Op.MULTIPLY) {
             return a * b;
-        } else if (op == Op.DIVIDE) {
+        }
+        if (op == Op.DIVIDE) {
             return a / b;
-        } else if (op == Op.POWER) {
+        }
+        if (op == Op.POWER) {
             return Math.pow(a, b);
-        } else if (op == Op.MODULO) {
+        }
+        if (op == Op.MODULO) {
             return a % b;
-        } else if (op == Op.LT) {
+        }
+        if (op == Op.LT) {
             return a < b ? 1 : 0;
-        } else if (op == Op.LT_EQ) {
+        }
+        if (op == Op.LT_EQ) {
             return a < b || Math.abs(a - b) < EPSILON ? 1 : 0;
-        } else if (op == Op.GT) {
+        }
+        if (op == Op.GT) {
             return a > b ? 1 : 0;
-        } else if (op == Op.GT_EQ) {
+        }
+        if (op == Op.GT_EQ) {
             return a > b || Math.abs(a - b) < EPSILON ? 1 : 0;
-        } else if (op == Op.EQ) {
+        }
+        if (op == Op.EQ) {
             return Math.abs(a - b) < EPSILON ? 1 : 0;
-        } else if (op == Op.NEQ) {
+        }
+        if (op == Op.NEQ) {
             return Math.abs(a - b) > EPSILON ? 1 : 0;
-        } else if (op == Op.AND) {
-            return a == 1 && b == 1 ? 1 : 0;
-        } else if (op == Op.OR) {
-            return a == 1 || b == 1 ? 1 : 0;
+        }
+        if (op == Op.AND) {
+            return Math.abs(a) > 0 && Math.abs(b) > 0 ? 1 : 0;
+        }
+        if (op == Op.OR) {
+            return Math.abs(a) > 0 || Math.abs(b) > 0 ? 1 : 0;
         }
 
         throw new UnsupportedOperationException(String.valueOf(op));

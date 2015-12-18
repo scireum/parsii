@@ -12,10 +12,8 @@ import java.util.List;
 
 /**
  * Represents a binary function.
- * <p>A binary function has two arguments which are always evaluated in order to compute the final result.</p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
+ * <p>
+ * A binary function has two arguments which are always evaluated in order to compute the final result.
  */
 public abstract class BinaryFunction implements Function {
 

@@ -15,12 +15,9 @@ import java.util.List;
  * <p>
  * By first collecting as many {@link ParseError} instances as possible, this permits to provide good insights
  * of what is wrong with the input provided by the user.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class ParseException extends Exception {
+    private static final long serialVersionUID = 1140772718463095285L;
     private List<ParseError> errors;
 
     /**

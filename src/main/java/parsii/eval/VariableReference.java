@@ -10,9 +10,6 @@ package parsii.eval;
 
 /**
  * Represents a reference to a variable.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class VariableReference extends Expression {
 

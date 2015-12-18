@@ -17,10 +17,6 @@ import java.io.Reader;
  * <p>
  * Helps to read characters from a {@link Reader} one after another. Using <tt>next</tt>, upcoming characters can
  * be inspected without consuming (removing) the current one.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class LookaheadReader extends Lookahead<Char> {
 
@@ -33,7 +29,6 @@ public class LookaheadReader extends Lookahead<Char> {
      * <p>
      * Internally a {@link BufferedReader} is used to efficiently read single characters. The given reader will not
      * be closed by this class.
-     * </p>
      *
      * @param input the reader to draw the input from
      */
@@ -70,7 +65,7 @@ public class LookaheadReader extends Lookahead<Char> {
 
     @Override
     public String toString() {
-        if (itemBuffer.size() == 0) {
+        if (itemBuffer.isEmpty()) {
             return line + ":" + pos + ": Buffer empty";
         }
         if (itemBuffer.size() < 2) {

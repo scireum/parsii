@@ -12,10 +12,8 @@ import java.util.List;
 
 /**
  * Represents an unary function.
- * <p>An unary function has one arguments which is always evaluated in order to compute the final result.</p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
+ * <p>
+ * An unary function has one arguments which is always evaluated in order to compute the final result.
  */
 public abstract class UnaryFunction implements Function {
 

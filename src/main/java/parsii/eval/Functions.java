@@ -14,10 +14,6 @@ import java.util.List;
  * Contains a set of predefined standard functions.
  * <p>
  * Provides mostly functions defined by {@link Math}
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class Functions {
 
@@ -130,7 +126,6 @@ public class Functions {
             return Math.atan2(a, b);
         }
     };
-
 
     /**
      * Provides access to {@link Math#round(double)}
@@ -275,9 +270,8 @@ public class Functions {
     /**
      * Provides an if-like function
      * <p>
-     * It expects three arguments: A condition, an expression being evaluated if the condition is 1 and an
-     * expression which is being evaluated if the condition is not 1.
-     * </p>
+     * It expects three arguments: A condition, an expression being evaluated if the condition is non zero and an
+     * expression which is being evaluated if the condition is zero.
      */
     public static final Function IF = new Function() {
         @Override
@@ -291,7 +285,7 @@ public class Functions {
             if (Double.isNaN(check)) {
                 return check;
             }
-            if (check == 1d) {
+            if (Math.abs(check) > 0) {
                 return args.get(1).evaluate();
             } else {
                 return args.get(2).evaluate();
@@ -303,4 +297,7 @@ public class Functions {
             return false;
         }
     };
+
+    private Functions() {
+    }
 }

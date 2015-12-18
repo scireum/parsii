@@ -12,10 +12,6 @@ package parsii.tokenizer;
  * Represents an error or a warning which occurred when parsing an input.
  * <p>
  * Used by {@link ParseException} to collect as many errors as possible before failing (throwing).
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class ParseError {
     private Position pos;
@@ -25,8 +21,8 @@ public class ParseError {
     /**
      * Specifies whether an error (unrecoverable problem) or a warning occurred.
      */
-    public static enum Severity {
-        WARNING, ERROR;
+    public enum Severity {
+        WARNING, ERROR
     }
 
     /*
@@ -42,7 +38,6 @@ public class ParseError {
      * Creates a new warning for the given position with the given message.
      * <p>
      * If no position is available {@link Position#UNKNOWN} can be used
-     * </p>
      *
      * @param pos the position where the warning occurred
      * @param msg the message explaining the warning
@@ -60,7 +55,6 @@ public class ParseError {
      * Creates a new error for the given position with the given message.
      * <p>
      * If no position is available {@link Position#UNKNOWN} can be used
-     * </p>
      *
      * @param pos the position where the error occurred
      * @param msg the message explaining the error

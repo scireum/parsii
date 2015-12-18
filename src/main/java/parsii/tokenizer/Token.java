@@ -17,13 +17,11 @@ package parsii.tokenizer;
  * have different types (<tt>STRING</tt>, <tt>ID</tt>, <tt>SPECIAL_ID</tt>). However, the two special ids
  * <tt>$Hello</tt> and <tt>#Hello</tt> will both have the same token type and content. Those will differ in their
  * <tt>trigger</tt> which will be <tt>#</tt> and <tt>$</tt> respectively.
- * </p>
  * <p>
  * As already shown, the <tt>content</tt> contains the effective content of the token which should be used for
  * further processing. Finally the <tt>source</tt> contains the complete text which was consumed while reading the
  * token. If we look at a string constant <tt>"Hello"</tt> the content will be <tt>Hello</tt> and the source will
  * be <tt>"Hello"</tt>.
- * </p>
  * <p>
  * The basic token types supported are:
  * <ul>
@@ -36,19 +34,14 @@ package parsii.tokenizer;
  * <li>KEYWORD: Represents an ID which was identified as a keyword</li>
  * <li>EOI: Signals the end of input</li>
  * </ul>
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class Token implements Position {
-
 
     /**
      * Contains the different token types supported by this class.
      */
-    public static enum TokenType {
-        ID, SPECIAL_ID, STRING, DECIMAL, INTEGER, SYMBOL, KEYWORD, EOI;
+    public enum TokenType {
+        ID, SPECIAL_ID, STRING, DECIMAL, INTEGER, SYMBOL, KEYWORD, EOI
     }
 
     private TokenType type;
@@ -211,7 +204,6 @@ public class Token implements Position {
      * Externally sets the trigger used for this token.
      * <p>
      * This will neither change the content nor the source of this token.
-     * </p>
      *
      * @param trigger the new trigger of this token
      */
@@ -224,7 +216,6 @@ public class Token implements Position {
      * Externally sets the content used for this token.
      * <p>
      * This will neither change the trigger nor the source of this token.
-     * </p>
      *
      * @param content the new content of this token
      */
@@ -236,14 +227,12 @@ public class Token implements Position {
      * Externally sets the source used for this token.
      * <p>
      * This will neither change the trigger nor the content of this token.
-     * </p>
      *
      * @param source the new source of this token
      */
     public void setSource(String source) {
         this.source = source;
     }
-
 
     /**
      * Determines if this is an end of input token
@@ -305,7 +294,7 @@ public class Token implements Position {
      *
      * @param content the content to check for
      * @return <tt>true</tt> if the content of this token equals the given content (ignoring case),
-     *         <tt>false</tt> otherwise
+     * <tt>false</tt> otherwise
      */
     public boolean hasContent(String content) {
         if (content == null) {
@@ -327,12 +316,11 @@ public class Token implements Position {
     /**
      * Determines if this token is a symbol.
      * <p>
-     * If a list of <dd>symbols</dd> is given, this method checks that the trigger matches one of them.
-     * </p>
+     * If a list of <tt>symbols</tt> is given, this method checks that the trigger matches one of them.
      *
      * @param symbols the symbols to check for. If the list es empty, only the token type is checked.
-     * @return <tt>true</tt> if this token is a symbol and matches one of the given <dd>symbols</dd> if the list
-     *         is not empty.
+     * @return <tt>true</tt> if this token is a symbol and matches one of the given <tt>symbols</tt> if the list
+     * is not empty.
      */
     public boolean isSymbol(String... symbols) {
         if (symbols.length == 0) {
@@ -349,12 +337,11 @@ public class Token implements Position {
     /**
      * Determines if this token is a keyword.
      * <p>
-     * If a list of <dd>symbols</dd> is given, this method checks that the trigger matches one of them.
-     * </p>
+     * If a list of <tt>symbols</tt> is given, this method checks that the trigger matches one of them.
      *
      * @param keywords the keywords to check for. If the list es empty, only the token type is checked.
-     * @return <tt>true</tt> if this token is a keyword and matches one of the given <dd>keywords</dd> if the list
-     *         is not empty.
+     * @return <tt>true</tt> if this token is a keyword and matches one of the given <tt>keywords</tt> if the list
+     * is not empty.
      */
     public boolean isKeyword(String... keywords) {
         if (keywords.length == 0) {
@@ -371,12 +358,11 @@ public class Token implements Position {
     /**
      * Determines if this token is an identifier.
      * <p>
-     * If a list of <dd>values</dd> is given, this method checks that the content matches one of them.
-     * </p>
+     * If a list of <tt>values</tt> is given, this method checks that the content matches one of them.
      *
      * @param values the values to check for. If the list es empty, only the token type is checked.
-     * @return <tt>true</tt> if this token is an identifier and matches one of the given <dd>values</dd> if the list
-     *         is not empty.
+     * @return <tt>true</tt> if this token is an identifier and matches one of the given <tt>values</tt> if the list
+     * is not empty.
      */
     public boolean isIdentifier(String... values) {
         if (values.length == 0) {
@@ -393,12 +379,11 @@ public class Token implements Position {
     /**
      * Determines if this token is a special identifier.
      * <p>
-     * If a list of <dd>triggers</dd> is given, this method checks that the trigger matches one of them.
-     * </p>
+     * If a list of <tt>triggers</tt> is given, this method checks that the trigger matches one of them.
      *
      * @param triggers the triggers to check for. If the list es empty, only the token type is checked.
-     * @return <tt>true</tt> if this token is a special identifier and matches one of the given <dd>triggers</dd>
-     *         if the list is not empty.
+     * @return <tt>true</tt> if this token is a special identifier and matches one of the given <tt>triggers</tt>
+     * if the list is not empty.
      */
     public boolean isSpecialIdentifier(String... triggers) {
         if (triggers.length == 0) {
@@ -415,13 +400,12 @@ public class Token implements Position {
     /**
      * Determines if this token is a special identifier with the given trigger.
      * <p>
-     * If a list of <dd>contents</dd> is given, this method checks that the content matches one of them.
-     * </p>
+     * If a list of <tt>contents</tt> is given, this method checks that the content matches one of them.
      *
      * @param trigger  the trigger of the special id
      * @param contents the content to check for. If the list es empty, only the token type and the trigger is checked.
      * @return <tt>true</tt> if this token is a special identifier with the given trigger.
-     *         If <dd>contents</dd> is not empty, the content must also match one of the elements.
+     * If <tt>contents</tt> is not empty, the content must also match one of the elements.
      */
     public boolean isSpecialIdentifierWithContent(String trigger, String... contents) {
         if (!matches(TokenType.SPECIAL_ID, trigger)) {

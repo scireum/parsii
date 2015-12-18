@@ -10,9 +10,6 @@ package parsii.eval;
 
 /**
  * Represents a constant numeric expression.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class Constant extends Expression {
     private double value;

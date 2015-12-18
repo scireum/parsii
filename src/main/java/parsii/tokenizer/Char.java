@@ -13,11 +13,8 @@ package parsii.tokenizer;
  * <p>
  * Provides the value as well as an exact position of the character in the stream. Also some test methods are
  * provided to determine the character class of the internal value.
- * </p>
  *
- * @author Andreas Haulfer (aha@scireum.de)
  * @see LookaheadReader
- * @since 2013/09
  */
 public class Char implements Position {
     private char value;
@@ -67,7 +64,6 @@ public class Char implements Position {
         return Character.isLetter(value);
     }
 
-
     /**
      * Determines if the value is a whitespace character like a blank, tab or line break
      *
@@ -90,7 +86,7 @@ public class Char implements Position {
      * Determines if this instance represents the end of input indicator
      *
      * @return <tt>true</tt> if this instance represents the end of the underlying input,
-     *         <tt>false</tt> otherwise
+     * <tt>false</tt> otherwise
      */
     public boolean isEndOfInput() {
         return value == '\0';

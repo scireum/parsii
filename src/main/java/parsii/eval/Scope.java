@@ -9,7 +9,12 @@
 package parsii.eval;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -20,12 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * only needs to be resolved once. Modifying it and especially reading it when evaluating an expression is as
  * cheap as a simple field access. The second advantage is that scopes can be chained. So variables can be either
  * shared by two expression or kept separate, if required.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class Scope implements Serializable {
+    private static final long serialVersionUID = 5741047270427993554L;
     private Scope parent;
     private Map<String, Variable> context = new ConcurrentHashMap<String, Variable>();
 
@@ -35,7 +37,6 @@ public class Scope implements Serializable {
      * Use one of the static factories
      */
     private Scope() {
-
     }
 
     /**
@@ -43,7 +44,6 @@ public class Scope implements Serializable {
      * <p>
      * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
      * defined as constants.
-     * </p>
      *
      * @return a new scope and empty
      */
@@ -75,7 +75,6 @@ public class Scope implements Serializable {
      * If a variable is resolved, first the own scope is scanned. If no variable for the given name is found, the
      * parent scope is scanned. If this yields a variable, it will be returned. Otherwise it will be defined
      * in the local scope (not in the parent).
-     * </p>
      *
      * @param parent the scope to use as lookup source for further variables
      * @return a new scope with the given parent as super scope
@@ -91,7 +90,6 @@ public class Scope implements Serializable {
      * Searches for a {@link Variable} with the given name.
      * <p>
      * If the variable does not exist <tt>null</tt>  will be returned
-     * </p>
      *
      * @param name the name of the variable to search
      * @return the variable with the given name or <tt>null</tt> if no such variable was found
@@ -108,7 +106,8 @@ public class Scope implements Serializable {
 
     /**
      * Searches for or creates a variable with the given name.
-     * <p>If no variable with the given name is found, a new variable is created in this scope</p>
+     * <p>
+     * If no variable with the given name is found, a new variable is created in this scope
      *
      * @param name the variable to look for
      * @return a variable with the given name
@@ -126,7 +125,6 @@ public class Scope implements Serializable {
      * <p>
      * Tries to find a variable with the given name in this scope. If no variable with the given name is found,
      * the parent scope is not checked, but a new variable is created.
-     * </p>
      *
      * @param name the variable to search or create
      * @return a variable with the given name from the local scope

@@ -8,15 +8,18 @@
 
 package parsii;
 
-import org.junit.Assert;
 import org.junit.Test;
-import parsii.eval.*;
+import parsii.eval.BinaryOperation;
+import parsii.eval.Expression;
+import parsii.eval.Function;
+import parsii.eval.Parser;
+import parsii.eval.Scope;
+import parsii.eval.Variable;
 import parsii.tokenizer.ParseException;
 
 import java.util.List;
 
 import static org.junit.Assert.*;
-
 
 /**
  * Tests the {@link Parser} class.
@@ -37,7 +40,7 @@ public class ParserTest {
         assertEquals(100d, Parser.parse("1 / 1 * 100").evaluate(), BinaryOperation.EPSILON);
         assertEquals(0.01d, Parser.parse("1 / (1 * 100)").evaluate(), BinaryOperation.EPSILON);
         assertEquals(0.01d, Parser.parse("1 * 1 / 100").evaluate(), BinaryOperation.EPSILON);
-        Assert.assertEquals(7d, Parser.parse("3+4").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(7d, Parser.parse("3+4").evaluate(), BinaryOperation.EPSILON);
         assertEquals(7d, Parser.parse("3      +    4").evaluate(), BinaryOperation.EPSILON);
         assertEquals(-1d, Parser.parse("3+ -4").evaluate(), BinaryOperation.EPSILON);
         assertEquals(-1d, Parser.parse("3+(-4)").evaluate(), BinaryOperation.EPSILON);
@@ -102,8 +105,8 @@ public class ParserTest {
     public void signedValueAfterOperand() throws ParseException {
         assertEquals(-1.2, Parser.parse("1+-2.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(3.2, Parser.parse("1++2.2").evaluate(), BinaryOperation.EPSILON);
-        assertEquals(6*-1.1, Parser.parse("6*-1.1").evaluate(), BinaryOperation.EPSILON);
-        assertEquals(6*+1.1, Parser.parse("6*+1.1").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(6 * -1.1, Parser.parse("6*-1.1").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(6 * 1.1, Parser.parse("6*+1.1").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test
@@ -241,6 +244,4 @@ public class ParserTest {
         // pi and euler are always defined...
         assertEquals(5, s.getVariables().size());
     }
-
-
 }

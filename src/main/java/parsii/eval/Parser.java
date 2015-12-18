@@ -27,13 +27,11 @@ import java.util.TreeMap;
  * Takes a string input as String or Reader which will be translated into an {@link Expression}. If one or more errors
  * occur, a {@link ParseException} will be thrown. The parser tries to continue as long a possible to provide good
  * insight into the errors within the expression.
- * </p>
  * <p>
  * This is a recursive descending parser which has a method per non-terminal.
- * </p>
  * <p>
  * Using this parser is as easy as:
- * <code>
+ * {@code
  * Scope scope = Scope.create();
  * Variable a = scope.getVariable("a");
  * Expression expr = Parser.parse("3 + a * 4");
@@ -41,14 +39,11 @@ import java.util.TreeMap;
  * System.out.println(expr.evaluate());
  * a.setValue(5);
  * System.out.println(expr.evaluate());
- * </code>
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
+ * }
  */
 public class Parser implements Serializable {
 
+    private static final long serialVersionUID = 437479083676978701L;
     private final Scope scope;
     private List<ParseError> errors = new ArrayList<ParseError>();
     private Tokenizer tokenizer;
@@ -58,7 +53,6 @@ public class Parser implements Serializable {
      * Registers a new function which can be referenced from within an expression.
      * <p>
      * A function must be registered before an expression is parsed in order to be visible.
-     * </p>
      *
      * @param name     the name of the function. If a function with the same name is already available, it will be
      *                 overridden
@@ -106,6 +100,7 @@ public class Parser implements Serializable {
      * Parses the given input into an expression.
      *
      * @param input the expression to be parsed
+     * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
     public static Expression parse(String input) throws ParseException {
@@ -116,6 +111,7 @@ public class Parser implements Serializable {
      * Parses the given input into an expression.
      *
      * @param input the expression to be parsed
+     * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
     public static Expression parse(Reader input) throws ParseException {
@@ -124,10 +120,12 @@ public class Parser implements Serializable {
 
     /**
      * Parses the given input into an expression.
-     * <p>Referenced variables will be resolved using the given Scope</p>
+     * <p>
+     * Referenced variables will be resolved using the given Scope
      *
      * @param input the expression to be parsed
      * @param scope the scope used to resolve variables
+     * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
     public static Expression parse(String input, Scope scope) throws ParseException {
@@ -136,16 +134,17 @@ public class Parser implements Serializable {
 
     /**
      * Parses the given input into an expression.
-     * <p>Referenced variables will be resolved using the given Scope</p>
+     * <p>
+     * Referenced variables will be resolved using the given Scope
      *
      * @param input the expression to be parsed
      * @param scope the scope used to resolve variables
+     * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
     public static Expression parse(Reader input, Scope scope) throws ParseException {
         return new Parser(input, scope).parse();
     }
-
 
     /*
      * Use one of the static methods to parse an expression
@@ -170,7 +169,7 @@ public class Parser implements Serializable {
                                         String.format("Unexpected token: '%s'. Expected an expression.",
                                                       token.getSource())));
         }
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             throw ParseException.create(errors);
         }
         return result;
@@ -180,8 +179,7 @@ public class Parser implements Serializable {
      * Parser rule for parsing an expression.
      * <p>
      * This is the root rule. An expression is a <tt>relationalExpression</tt> which might be followed by a logical
-     * operator (&& or ||) and another <tt>expression</tt>.
-     * </p>
+     * operator (&amp;&amp; or ||) and another <tt>expression</tt>.
      *
      * @return an expression parsed from the given input
      */
@@ -191,7 +189,8 @@ public class Parser implements Serializable {
             tokenizer.consume();
             Expression right = expression();
             return reOrder(left, right, BinaryOperation.Op.AND);
-        } else if (tokenizer.current().isSymbol("||")) {
+        }
+        if (tokenizer.current().isSymbol("||")) {
             tokenizer.consume();
             Expression right = expression();
             return reOrder(left, right, BinaryOperation.Op.OR);
@@ -204,7 +203,6 @@ public class Parser implements Serializable {
      * <p>
      * A relational expression is a <tt>term</tt> which might be followed by a relational operator
      * (&lt;,&lt;=,...,&gt;) and another <tt>relationalExpression</tt>.
-     * </p>
      *
      * @return a relational expression parsed from the given input
      */
@@ -247,7 +245,6 @@ public class Parser implements Serializable {
      * Parser rule for parsing a term.
      * <p>
      * A term is a <tt>product</tt> which might be followed by + or - as operator and another <tt>term</tt>.
-     * </p>
      *
      * @return a term parsed from the given input
      */
@@ -277,7 +274,6 @@ public class Parser implements Serializable {
      * Parser rule for parsing a product.
      * <p>
      * A product is a <tt>power</tt> which might be followed by *, / or % as operator and another <tt>product</tt>.
-     * </p>
      *
      * @return a product parsed from the given input
      */
@@ -301,7 +297,7 @@ public class Parser implements Serializable {
         return left;
     }
 
-    /**
+    /*
      * Reorders the operands of the given operation in order to generate a "left handed" AST which performs evaluations
      * in natural order (from left to right).
      */
@@ -331,7 +327,6 @@ public class Parser implements Serializable {
      * Parser rule for parsing a power.
      * <p>
      * A power is an <tt>atom</tt> which might be followed by ^ or ** as operator and another <tt>power</tt>.
-     * </p>
      *
      * @return a power parsed from the given input
      */
@@ -351,7 +346,6 @@ public class Parser implements Serializable {
      * An atom is either a numeric constant, an <tt>expression</tt> in brackets, an <tt>expression</tt> surrounded by
      * | to signal the absolute function, an identifier to signal a variable reference or an identifier followed by a
      * bracket to signal a function call.
-     * </p>
      *
      * @return an atom parsed from the given input
      */
@@ -390,6 +384,17 @@ public class Parser implements Serializable {
             }
             return new VariableReference(scope.getVariable(tokenizer.consume().getContents()));
         }
+        return literalAtom();
+    }
+
+    /**
+     * Parser rule for parsing a literal atom.
+     * <p>
+     * An literal atom is a numeric constant.
+     *
+     * @return an atom parsed from the given input
+     */
+    private Expression literalAtom() {
         if (tokenizer.current().isSymbol("+") && tokenizer.next().isNumber()) {
             // Parse numbers with a leading + sign like +2.02 by simply ignoring the +
             tokenizer.consume();
@@ -445,7 +450,7 @@ public class Parser implements Serializable {
             errors.add(ParseError.error(funToken, String.format("Unknown function: '%s'", funToken.getContents())));
         }
         call.setFunction(fun);
-        tokenizer.consume(); // (
+        tokenizer.consume();
         while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
             if (!call.getParameters().isEmpty()) {
                 expect(Token.TokenType.SYMBOL, ",");
@@ -473,7 +478,6 @@ public class Parser implements Serializable {
      * <p>
      * If the current input is pointing at the specified token, it will be consumed. If not, an error will be added
      * to the error list and the input remains unchanged.
-     * </p>
      *
      * @param type    the type of the expected token
      * @param trigger the trigger of the expected token
@@ -488,5 +492,4 @@ public class Parser implements Serializable {
                                                       trigger)));
         }
     }
-
 }

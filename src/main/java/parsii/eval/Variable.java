@@ -14,13 +14,8 @@ package parsii.eval;
  * A variable is resolved or created using a {@link Scope}. This ensures that the same name always resolves to the
  * same variable. In contrast to using a Map, reading and writing a variable can be much faster, as it only needs
  * to be resolved once. Reading and writing it, is basically as cheap as a field access.
- * </p>
  * <p>
  * A variable can be made constant, which will fail all further attempts to change it.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class Variable {
     private double value = 0d;
@@ -32,7 +27,6 @@ public class Variable {
      * <p>
      * Variables should only be created by their surrounding {@link Scope} so that all following look-ups
      * yield the same variable.
-     * </p>
      *
      * @param name the name of the variable
      */
@@ -74,7 +68,7 @@ public class Variable {
 
     @Override
     public String toString() {
-        return name + ": " + String.valueOf(value);
+        return name + ": " + value;
     }
 
     /**

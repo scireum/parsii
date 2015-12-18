@@ -11,11 +11,7 @@ package parsii.eval;
 /**
  * Represents the result of a parsed expression.
  * <p>
- * Can be evaluated to return a double value. If an error occurs <code>Double.NaN</code> will be returned.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
+ * Can be evaluated to return a double value. If an error occurs {@code Double.NaN} will be returned.
  */
 public abstract class Expression {
 
@@ -39,7 +35,7 @@ public abstract class Expression {
      * Determines the this expression is constant
      *
      * @return <tt>true</tt> if the result of evaluate will never change and does not depend on external state like
-     *         variables
+     * variables
      */
     public boolean isConstant() {
         return false;

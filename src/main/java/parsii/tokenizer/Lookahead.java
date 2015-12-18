@@ -16,10 +16,8 @@ import java.util.List;
  * <p>
  * Items provided by subclasses of this are processed one after each other. However, using {@link #next()} or
  * {@link #next(int)} one can peek at upcoming items without consuming the current one.
- * </p>
  *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
+ * @param <T> the type of the elements kept in the stream
  */
 public abstract class Lookahead<T> {
     /**
@@ -50,7 +48,6 @@ public abstract class Lookahead<T> {
      * <p>
      * This method does not change the internal state. Therefore it can be called several times and will always
      * return the same result.
-     * </p>
      *
      * @return the item the stream is currently pointing at.
      */
@@ -63,7 +60,6 @@ public abstract class Lookahead<T> {
      * <p>
      * This method does not change the internal state. Therefore it can be called several times and will always
      * return the same result.
-     * </p>
      *
      * @return the next item in the stream. This will be the current item, after a call to {@link #consume()}
      */
@@ -76,12 +72,11 @@ public abstract class Lookahead<T> {
      * <p>
      * Calling this method with 0 as parameter, will return the current item. Calling it with 1 will return the
      * same item as a call to <tt>next()</tt>.
-     * </p>
      * <p>
      * This method does not change the internal state. Therefore it can be called several times and will always
      * return the same result.
-     * </p>
      *
+     * @param offset the number of items to skip
      * @return the n-th item in the stream
      */
     public T next(int offset) {
@@ -110,7 +105,6 @@ public abstract class Lookahead<T> {
      * Creates the end of input indicator item.
      * <p>
      * This method will be only called once, as the indicator is cached.
-     * </p>
      *
      * @return a special item which marks the end of the input
      */
@@ -140,7 +134,6 @@ public abstract class Lookahead<T> {
      * Consumes (removes) <tt>numberOfItems</tt> at once.
      * <p>
      * Removes the given number of items from the stream.
-     * </p>
      *
      * @param numberOfItems the number of items to remove
      */
@@ -168,7 +161,7 @@ public abstract class Lookahead<T> {
      * Provides access to the problem collector used by this instance.
      *
      * @return the problem collector used by this class. This returns the internally used list, therefore it should be
-     *         treat appropriately
+     * treat appropriately
      */
     public List<ParseError> getProblemCollector() {
         return problemCollector;

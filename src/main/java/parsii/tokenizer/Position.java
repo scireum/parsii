@@ -10,9 +10,6 @@ package parsii.tokenizer;
 
 /**
  * Describes a position in a file or a stream based on lines and the character position within the line.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public interface Position {
     /**
@@ -32,7 +29,7 @@ public interface Position {
     /**
      * Represents an unknown position for warnings and errors which cannot be associated with a defined position.
      */
-    public static final Position UNKNOWN = new Position() {
+    Position UNKNOWN = new Position() {
 
         @Override
         public int getLine() {
