@@ -474,9 +474,7 @@ public class Tokenizer extends Lookahead<Token> {
         if (result.isSymbol("*") && input.current().is('*')
             || result.isSymbol("&") && input.current().is('&')
             || result.isSymbol("|") && input.current().is('|')
-            || result.isSymbol("<") && input.current().is('=')
-            || result.isSymbol(">") && input.current().is('=')
-            || result.isSymbol("!") && input.current().is('=')) {
+            || result.isSymbol() && input.current().is('=')) {
             result.addToTrigger(input.consume());
         }
         return result;
