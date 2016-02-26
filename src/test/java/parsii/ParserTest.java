@@ -111,10 +111,10 @@ public class ParserTest {
 
     @Test
     public void variables() throws ParseException {
-        Scope scope = Scope.create();
+        Scope scope = new Scope();
 
-        Variable a = scope.getVariable("a");
-        Variable b = scope.getVariable("b");
+        Variable a = scope.create("a");
+        Variable b = scope.create("b");
         Expression expr = Parser.parse("3*a + 4 * b", scope);
         assertEquals(0d, expr.evaluate(), BinaryOperation.EPSILON);
         a.setValue(2);
@@ -162,10 +162,10 @@ public class ParserTest {
 
     @Test
     public void scopes() throws ParseException {
-        Scope root = Scope.create();
+        Scope root = new Scope();
         Variable a = root.getVariable("a").withValue(1);
-        Scope subScope1 = Scope.createWithParent(root);
-        Scope subScope2 = Scope.createWithParent(root);
+        Scope subScope1 = new Scope().withParent(root);
+        Scope subScope2 = new Scope().withParent(root);
         Variable b1 = subScope1.getVariable("b").withValue(2);
         Variable b2 = subScope2.getVariable("b").withValue(3);
         Variable c = root.getVariable("c").withValue(4);
@@ -234,7 +234,7 @@ public class ParserTest {
 
     @Test
     public void getVariables() throws ParseException {
-        Scope s = Scope.create();
+        Scope s = new Scope();
         Parser.parse("a*b+c", s);
         assertTrue(s.getNames().contains("a"));
         assertTrue(s.getNames().contains("b"));
@@ -247,7 +247,7 @@ public class ParserTest {
 
     @Test
     public void errorOnUnknownVariable() throws ParseException {
-        Scope s = Scope.createStrict();
+        Scope s = new Scope();
         try {
             s.create("a");
             s.create("b");
@@ -258,5 +258,24 @@ public class ParserTest {
 
         s.create("c");
         Parser.parse("a*b+c", s);
+    }
+
+    @Test
+    public void removeVariable() throws ParseException {
+        Scope s = new Scope();
+        s.create("X");
+        assertTrue(s.find("X") != null);
+        assertTrue(s.remove("X") != null);
+        assertTrue(s.find("X") == null);
+    }
+
+    @Test
+    public void removeVariableFromSubscope() throws ParseException {
+        Scope s = new Scope();
+        Scope child = new Scope().withParent(s);
+        s.create("X");
+        assertTrue(child.find("X") != null);
+        assertTrue(child.remove("X") == null);
+        assertTrue(child.find("X") != null);
     }
 }

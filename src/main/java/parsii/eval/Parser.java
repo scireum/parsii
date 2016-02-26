@@ -104,7 +104,7 @@ public class Parser implements Serializable {
      * @throws ParseException if the expression contains one or more errors
      */
     public static Expression parse(String input) throws ParseException {
-        return new Parser(new StringReader(input), Scope.create()).parse();
+        return new Parser(new StringReader(input), new Scope()).parse();
     }
 
     /**
@@ -115,7 +115,7 @@ public class Parser implements Serializable {
      * @throws ParseException if the expression contains one or more errors
      */
     public static Expression parse(Reader input) throws ParseException {
-        return new Parser(input, Scope.create()).parse();
+        return new Parser(input, new Scope()).parse();
     }
 
     /**

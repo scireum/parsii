@@ -31,15 +31,43 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Scope implements Serializable {
     private static final long serialVersionUID = 5741047270427993554L;
     private Scope parent;
+    private double defaultValue = 0d;
     private boolean autocreateVariables = true;
     private Map<String, Variable> context = new ConcurrentHashMap<String, Variable>();
 
     private static Scope root;
 
-    /*
-     * Use one of the static factories
+    /**
+     * Creates a new empty scope.
+     * <p>
+     * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
+     * defined as constants.
+     * <p>
+     * If an not yet known variable is accessed, it will be created and initialized with 0.
      */
-    private Scope() {
+    public Scope() {
+        this(false);
+    }
+
+    private Scope(boolean skipParent) {
+        if (!skipParent) {
+            this.parent = getRootScope();
+        }
+    }
+
+    /*
+     * Creates the internal root scope which contains eternal constants ;-)
+     */
+    private static Scope getRootScope() {
+        if (root == null) {
+            synchronized (Scope.class) {
+                root = new Scope(true);
+                root.create("pi").makeConstant(Math.PI);
+                root.create("euler").makeConstant(Math.E);
+            }
+        }
+
+        return root;
     }
 
     /**
@@ -51,12 +79,11 @@ public class Scope implements Serializable {
      * If an not yet known variable is accessed, it will be created and initialized with 0.
      *
      * @return a new scope and empty
+     * @deprecated use plain old java code like {@code new Scope()}
      */
+    @Deprecated
     public static Scope create() {
-        Scope result = new Scope();
-        result.parent = getRootScope();
-
-        return result;
+        return new Scope();
     }
 
     /**
@@ -68,28 +95,64 @@ public class Scope implements Serializable {
      * If an not yet known variable is accessed, a {@link ParseException} will be thrown.
      *
      * @return a new scope and empty
+     * @deprecated Use plain java like {@code new Scope().withStrictLookup(true)}
      */
+    @Deprecated
     public static Scope createStrict() {
-        Scope result = new Scope();
-        result.autocreateVariables = false;
-        result.parent = getRootScope();
-
-        return result;
+        return new Scope().withStrictLookup(true);
     }
 
-    /*
-     * Creates the internal root scope which contains eternal constants ;-)
+    /**
+     * Specifies a default value for auto created variables.
+     * <p>
+     * Unless changes, variables are initialized with 0. One could change this i.e. to NaN
+     * to visualize the use of undeclared variables without creating an error.
+     * <p>
+     * Note that this will not change the value of variables which have been created before calling this method.
+     *
+     * @param newDefaultValue the new default value to use when creating yet unknown variables.
+     * @return the instance itself for fluent method calls
      */
-    private static Scope getRootScope() {
-        if (root == null) {
-            synchronized (Scope.class) {
-                root = new Scope();
-                root.create("pi").makeConstant(Math.PI);
-                root.create("euler").makeConstant(Math.E);
-            }
+    public Scope withDefaultValue(double newDefaultValue) {
+        this.defaultValue = newDefaultValue;
+
+        return this;
+    }
+
+    /**
+     * Determines if strict lookup should be used or not.
+     * <p>
+     * A scope with strict lookup will not create unknown variables upon their first access but rather throw an error.
+     * <p>
+     * By default, scopes are not strict and will automatically create variables when first reuqested.
+     *
+     * @param strictLookup <tt>true</tt> if the scope should be switched to strict lookup, <tt>false</tt>  otherwise
+     * @return the instance itself for fluent method calls
+     */
+    public Scope withStrictLookup(boolean strictLookup) {
+        this.autocreateVariables = !strictLookup;
+
+        return this;
+    }
+
+    /**
+     * Specifies the parent scope for this scope.
+     * <p>
+     * If a scope cannot resolve a variable, it tries to resolve it using its parent scope. This permits to
+     * share a certain set of variables.
+     *
+     * @param parent the parent scope to use. If <tt>null</tt>, the common root scope is used which defines a bunch of
+     *               constants (e and pi).
+     * @return the instance itself for fluent method calls
+     */
+    public Scope withParent(Scope parent) {
+        if (parent == null) {
+            this.parent = getRootScope();
+        } else {
+            this.parent = parent;
         }
 
-        return root;
+        return this;
     }
 
     /**
@@ -101,12 +164,11 @@ public class Scope implements Serializable {
      *
      * @param parent the scope to use as lookup source for further variables
      * @return a new scope with the given parent as super scope
+     * @deprecated Use plain java code like {@code new Scope().withParent(parent)}
      */
+    @Deprecated
     public static Scope createWithParent(Scope parent) {
-        Scope result = create();
-        result.parent = parent;
-
-        return result;
+        return new Scope().withParent(parent);
     }
 
     /**
@@ -166,6 +228,22 @@ public class Scope implements Serializable {
         context.put(name, result);
 
         return result;
+    }
+
+    /**
+     * Removes the variable with the given name from this scope.
+     * <p>
+     * If will not remove the variable from a parent scope.
+     *
+     * @param name the name of the variable to remove
+     * @return the removed variable or <tt>null</tt> if no variable with the given name existed
+     */
+    public Variable remove(String name) {
+        if (context.containsKey(name)) {
+            return context.remove(name);
+        } else {
+            return null;
+        }
     }
 
     /**
