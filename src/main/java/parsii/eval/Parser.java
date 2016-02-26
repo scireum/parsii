@@ -382,7 +382,14 @@ public class Parser implements Serializable {
             if (tokenizer.next().isSymbol("(")) {
                 return functionCall();
             }
-            return new VariableReference(scope.getVariable(tokenizer.consume().getContents()));
+            Token variableName = tokenizer.consume();
+            try {
+                return new VariableReference(scope.getVariable(variableName.getContents()));
+            } catch (@SuppressWarnings("UnusedCatchParameter") IllegalArgumentException e) {
+                errors.add(ParseError.error(variableName,
+                                            String.format("Unknown variable: '%s'", variableName.getContents())));
+                return new Constant(0);
+            }
         }
         return literalAtom();
     }

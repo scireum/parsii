@@ -244,4 +244,19 @@ public class ParserTest {
         // pi and euler are always defined...
         assertEquals(5, s.getVariables().size());
     }
+
+    @Test
+    public void errorOnUnknownVariable() throws ParseException {
+        Scope s = Scope.createStrict();
+        try {
+            s.create("a");
+            s.create("b");
+            Parser.parse("a*b+c", s);
+        } catch (ParseException e) {
+            assertEquals(1, e.getErrors().size());
+        }
+
+        s.create("c");
+        Parser.parse("a*b+c", s);
+    }
 }

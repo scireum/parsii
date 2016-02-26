@@ -8,6 +8,8 @@
 
 package parsii.eval;
 
+import parsii.tokenizer.ParseException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Scope implements Serializable {
     private static final long serialVersionUID = 5741047270427993554L;
     private Scope parent;
+    private boolean autocreateVariables = true;
     private Map<String, Variable> context = new ConcurrentHashMap<String, Variable>();
 
     private static Scope root;
@@ -44,11 +47,31 @@ public class Scope implements Serializable {
      * <p>
      * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
      * defined as constants.
+     * <p>
+     * If an not yet known variable is accessed, it will be created and initialized with 0.
      *
      * @return a new scope and empty
      */
     public static Scope create() {
         Scope result = new Scope();
+        result.parent = getRootScope();
+
+        return result;
+    }
+
+    /**
+     * Creates a new empty scope which will not autocreate variables.
+     * <p>
+     * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
+     * defined as constants.
+     * <p>
+     * If an not yet known variable is accessed, a {@link ParseException} will be thrown.
+     *
+     * @return a new scope and empty
+     */
+    public static Scope createStrict() {
+        Scope result = new Scope();
+        result.autocreateVariables = false;
         result.parent = getRootScope();
 
         return result;
@@ -61,8 +84,8 @@ public class Scope implements Serializable {
         if (root == null) {
             synchronized (Scope.class) {
                 root = new Scope();
-                root.getVariable("pi").makeConstant(Math.PI);
-                root.getVariable("euler").makeConstant(Math.E);
+                root.create("pi").makeConstant(Math.PI);
+                root.create("euler").makeConstant(Math.E);
             }
         }
 
@@ -111,12 +134,18 @@ public class Scope implements Serializable {
      *
      * @param name the variable to look for
      * @return a variable with the given name
+     * @throws IllegalArgumentException if {@link #autocreateVariables} is <tt>false</tt> and the given
+     *                                  variable was not creted yet.
      */
     public Variable getVariable(String name) {
         Variable result = find(name);
         if (result != null) {
             return result;
         }
+        if (!autocreateVariables) {
+            throw new IllegalArgumentException();
+        }
+
         return create(name);
     }
 
