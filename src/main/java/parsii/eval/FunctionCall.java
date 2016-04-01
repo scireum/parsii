@@ -15,6 +15,8 @@ import java.util.List;
  * Represents the invocation of a function.
  */
 public class FunctionCall extends Expression {
+
+    private static final long serialVersionUID = 5758404497296893915L;
     private List<Expression> parameters = new ArrayList<Expression>();
     private Function function;
 

@@ -13,6 +13,7 @@ package parsii.eval;
  */
 public class VariableReference extends Expression {
 
+    private static final long serialVersionUID = -6597902286788822085L;
     private Variable var;
 
     /**

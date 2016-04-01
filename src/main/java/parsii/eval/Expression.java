@@ -8,12 +8,16 @@
 
 package parsii.eval;
 
+import java.io.Serializable;
+
 /**
  * Represents the result of a parsed expression.
  * <p>
  * Can be evaluated to return a double value. If an error occurs {@code Double.NaN} will be returned.
  */
-public abstract class Expression {
+public abstract class Expression implements Serializable {
+
+    private static final long serialVersionUID = -6078443078086081582L;
 
     /**
      * Evaluates the expression to a double number.

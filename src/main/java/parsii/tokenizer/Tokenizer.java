@@ -419,9 +419,9 @@ public class Tokenizer extends Lookahead<Token> {
      * @return a keyword Token if the given identifier was a keyword, the original Token otherwise
      */
     protected Token handleKeywords(Token idToken) {
-        String keyword = keywordsCaseSensitive ?
-                         keywords.get(idToken.getContents().intern()) :
-                         keywords.get(idToken.getContents().toLowerCase().intern());
+        String keyword = keywords.get(keywordsCaseSensitive ?
+                                      idToken.getContents().intern() :
+                                      idToken.getContents().toLowerCase().intern());
         if (keyword != null) {
             Token keywordToken = Token.create(Token.TokenType.KEYWORD, idToken);
             keywordToken.setTrigger(keyword);
