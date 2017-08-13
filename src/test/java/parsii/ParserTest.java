@@ -63,6 +63,9 @@ public class ParserTest {
     public void signed() throws ParseException {
         assertEquals(-2.02, Parser.parse("-2.02").evaluate(), BinaryOperation.EPSILON);
         assertEquals(2.02, Parser.parse("+2.02").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2.2, Parser.parse("--2.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2.2, Parser.parse("+++2.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-2.2, Parser.parse("-+--++2.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(1.01, Parser.parse("+2.02 + -1.01").evaluate(), BinaryOperation.EPSILON);
         assertEquals(-4.03, Parser.parse("-2.02 - +2.01").evaluate(), BinaryOperation.EPSILON);
         assertEquals(3.03, Parser.parse("+2.02 + +1.01").evaluate(), BinaryOperation.EPSILON);

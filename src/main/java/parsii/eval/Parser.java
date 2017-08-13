@@ -347,10 +347,10 @@ public class Parser implements Serializable {
             tokenizer.consume();
             return new BinaryOperation(BinaryOperation.Op.MULTIPLY, new Constant(-1d), power());
         }
-        if (tokenizer.current().isSymbol("+") && tokenizer.next().isSymbol("(")) {
-            // Support for brackets with a leading + like "+(2.2)" in this case we simply ignore the
-            // + sign
+        if (tokenizer.current().isSymbol("+")) {
+            // Parse leading + signs like +2.02 by simply ignoring the +
             tokenizer.consume();
+            return power();
         }
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
@@ -393,10 +393,6 @@ public class Parser implements Serializable {
      * @return an atom parsed from the given input
      */
     private Expression literalAtom() {
-        if (tokenizer.current().isSymbol("+") && tokenizer.next().isNumber()) {
-            // Parse numbers with a leading + sign like +2.02 by simply ignoring the +
-            tokenizer.consume();
-        }
         if (tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {
