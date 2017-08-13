@@ -328,7 +328,7 @@ public class Parser implements Serializable {
         if (tokenizer.current().isSymbol("^") || tokenizer.current().isSymbol("**")) {
             tokenizer.consume();
             Expression right = power();
-            return reOrder(left, right, BinaryOperation.Op.POWER);
+            return new BinaryOperation(BinaryOperation.Op.POWER, left, right);
         }
         return left;
     }

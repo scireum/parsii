@@ -115,6 +115,16 @@ public class ParserTest {
     }
 
     @Test
+    public void stackedExponents() throws ParseException {
+        assertEquals(256.0, Parser.parse("2^2^3").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(256.0, Parser.parse("2^(2^3)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(64.0, Parser.parse("(2^2)^3").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.5, Parser.parse("2^-1^2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.5, Parser.parse("2^-(1^2)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2, Parser.parse("2^(-1)^2").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
     public void variables() throws ParseException {
         Scope scope = new Scope();
 
