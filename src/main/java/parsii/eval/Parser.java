@@ -260,13 +260,6 @@ public class Parser implements Serializable {
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
-        if (tokenizer.current().isNumber()) {
-            if (tokenizer.current().getContents().startsWith("-")) {
-                Expression right = term();
-                return reOrder(left, right, BinaryOperation.Op.ADD);
-            }
-        }
-
         return left;
     }
 
@@ -352,9 +345,7 @@ public class Parser implements Serializable {
     protected Expression atom() {
         if (tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
-            BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
-            result.seal();
-            return result;
+            return new BinaryOperation(BinaryOperation.Op.MULTIPLY, new Constant(-1d), power());
         }
         if (tokenizer.current().isSymbol("+") && tokenizer.next().isSymbol("(")) {
             // Support for brackets with a leading + like "+(2.2)" in this case we simply ignore the

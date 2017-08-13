@@ -9,12 +9,7 @@
 package parsii;
 
 import org.junit.Test;
-import parsii.eval.BinaryOperation;
-import parsii.eval.Expression;
-import parsii.eval.Function;
-import parsii.eval.Parser;
-import parsii.eval.Scope;
-import parsii.eval.Variable;
+import parsii.eval.*;
 import parsii.tokenizer.ParseException;
 
 import java.util.List;
@@ -107,6 +102,13 @@ public class ParserTest {
         assertEquals(3.2, Parser.parse("1++2.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(6 * -1.1, Parser.parse("6*-1.1").evaluate(), BinaryOperation.EPSILON);
         assertEquals(6 * 1.1, Parser.parse("6*+1.1").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void minusPowerPrecedence() throws ParseException {
+        assertEquals(-4.0, Parser.parse("-(2)^2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-4.0, Parser.parse("-2^2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-2.0, Parser.parse("2-2^2").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test
