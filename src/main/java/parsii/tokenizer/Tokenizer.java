@@ -206,6 +206,7 @@ public class Tokenizer extends Lookahead<Token> {
      *
      * @return <tt>true</tt> if the current input is the start of a numeric constant, <tt>false</tt> otherwise
      */
+    @SuppressWarnings("squid:S1067")
     protected boolean isAtStartOfNumber() {
         return input.current().isDigit()
                || input.current().is('-') && input.next().isDigit()
@@ -222,6 +223,7 @@ public class Tokenizer extends Lookahead<Token> {
      * @param inSymbol determines if we're already parsing a symbol or just trying to decide what the next token is
      * @return <tt>true</tt> if the current input is an opening or closing bracket
      */
+    @SuppressWarnings("squid:S1067")
     protected boolean isAtBracket(boolean inSymbol) {
         return input.current().is(brackets) || !inSymbol
                                                && treatSinglePipeAsBracket
@@ -468,6 +470,7 @@ public class Tokenizer extends Lookahead<Token> {
      *
      * @return the parsed symbol as Token
      */
+    @SuppressWarnings("squid:S1067")
     protected Token fetchSymbol() {
         Token result = Token.create(Token.TokenType.SYMBOL, input.current());
         result.addToTrigger(input.consume());
@@ -488,6 +491,7 @@ public class Tokenizer extends Lookahead<Token> {
      * @param ch the character to check
      * @return <tt>true</tt> if the given character is a valid symbol character, <tt>false</tt> otherwise
      */
+    @SuppressWarnings("squid:S1067")
     protected boolean isSymbolCharacter(Char ch) {
         if (ch.isEndOfInput() || ch.isDigit() || ch.isLetter() || ch.isWhitepace()) {
             return false;

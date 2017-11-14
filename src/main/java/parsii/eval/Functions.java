@@ -273,7 +273,12 @@ public class Functions {
      * It expects three arguments: A condition, an expression being evaluated if the condition is non zero and an
      * expression which is being evaluated if the condition is zero.
      */
-    public static final Function IF = new Function() {
+    public static final Function IF = new IfFunction();
+
+    private Functions() {
+    }
+
+    private static class IfFunction implements Function {
         @Override
         public int getNumberOfArguments() {
             return 3;
@@ -296,8 +301,5 @@ public class Functions {
         public boolean isNaturalFunction() {
             return false;
         }
-    };
-
-    private Functions() {
     }
 }

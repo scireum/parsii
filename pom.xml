@@ -6,7 +6,7 @@
         <version>2.1</version>
     </parent>
     <artifactId>parsii</artifactId>
-    <version>2.3</version>
+    <version>3.0</version>
     <packaging>jar</packaging>
     <name>parsii</name>
     <description>parsii is a super fast and lightweight parser and expression evaluator</description>

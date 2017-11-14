@@ -17,8 +17,15 @@ import java.util.List;
  * of what is wrong with the input provided by the user.
  */
 public class ParseException extends Exception {
-    private static final long serialVersionUID = 1140772718463095285L;
-    private List<ParseError> errors;
+
+    private static final long serialVersionUID = -5618855459424320517L;
+
+    private final transient List<ParseError> errors;
+
+    private ParseException(String message, List<ParseError> errors) {
+        super(message);
+        this.errors = errors;
+    }
 
     /**
      * Creates a new exception based on the list of errors.
@@ -36,11 +43,6 @@ public class ParseException extends Exception {
         } else {
             return new ParseException("An unknown error occured", errors);
         }
-    }
-
-    private ParseException(String message, List<ParseError> errors) {
-        super(message);
-        this.errors = errors;
     }
 
     /**

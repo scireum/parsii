@@ -141,17 +141,13 @@ public abstract class Lookahead<T> {
         if (numberOfItems < 0) {
             throw new IllegalArgumentException("numberOfItems < 0");
         }
-        while (numberOfItems-- > 0) {
+        while (numberOfItems-- > 0 && !endReached) {
             if (!itemBuffer.isEmpty()) {
                 itemBuffer.remove(0);
             } else {
-                if (endReached) {
-                    return;
-                } else {
-                    T item = fetch();
-                    if (item == null) {
-                        endReached = true;
-                    }
+                T item = fetch();
+                if (item == null) {
+                    endReached = true;
                 }
             }
         }
