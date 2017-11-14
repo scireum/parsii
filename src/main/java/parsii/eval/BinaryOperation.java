@@ -141,7 +141,7 @@ public class BinaryOperation extends Expression {
             case GT:
                 return a > b ? 1 : 0;
             case GT_EQ:
-                return Math.abs(a - b) > EPSILON ? 1 : 0;
+                return a > b || Math.abs(a - b) < EPSILON ? 1 : 0;
             case EQ:
                 return Math.abs(a - b) < EPSILON ? 1 : 0;
             case NEQ:
