@@ -28,8 +28,7 @@ import java.util.Set;
  * consumed.</li>
  * <li>If the current character starts a block comment, read until and end of block comment is detected.</li>
  * <li>If the current character is a digit, parse a INTEGER, if a decimal separator is found, switch over to a DECIMAL
- * (see {@link Char#isDigit()}. Also if the current character is a '-' and the next is a digit, we try to read
- * a number.</li>
+ * (see {@link Char#isDigit()}.</li>
  * <li>If the current character is a letter, parse an ID (see {@link Char#isLetter()}. Once this is complete, check if
  * the ID matches one of the supplied keywords, and convert if necessary.</li>
  * <li>If the current character is an opening or closing bracket, a SYMBOL for that single character is returned</li>
@@ -209,8 +208,6 @@ public class Tokenizer extends Lookahead<Token> {
     @SuppressWarnings("squid:S1067")
     protected boolean isAtStartOfNumber() {
         return input.current().isDigit()
-               || input.current().is('-') && input.next().isDigit()
-               || input.current().is('-') && input.next().is('.') && input.next(2).isDigit()
                || input.current().is('.') && input.next().isDigit();
     }
 

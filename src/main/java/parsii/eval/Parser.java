@@ -255,13 +255,6 @@ public class Parser {
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
-        if (tokenizer.current().isNumber()) {
-            if (tokenizer.current().getContents().startsWith("-")) {
-                Expression right = term();
-                return reOrder(left, right, BinaryOperation.Op.ADD);
-            }
-        }
-
         return left;
     }
 
@@ -330,7 +323,7 @@ public class Parser {
         if (tokenizer.current().isSymbol("^") || tokenizer.current().isSymbol("**")) {
             tokenizer.consume();
             Expression right = power();
-            return reOrder(left, right, BinaryOperation.Op.POWER);
+            return new BinaryOperation(BinaryOperation.Op.POWER, left, right);
         }
         return left;
     }
@@ -347,14 +340,12 @@ public class Parser {
     protected Expression atom() {
         if (tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
-            BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
-            result.seal();
-            return result;
+            return new BinaryOperation(BinaryOperation.Op.MULTIPLY, new Constant(-1d), power());
         }
-        if (tokenizer.current().isSymbol("+") && tokenizer.next().isSymbol("(")) {
-            // Support for brackets with a leading + like "+(2.2)" in this case we simply ignore the
-            // + sign
+        if (tokenizer.current().isSymbol("+")) {
+            // Parse leading + signs like +2.02 by simply ignoring the +
             tokenizer.consume();
+            return power();
         }
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
@@ -398,10 +389,6 @@ public class Parser {
      */
     @SuppressWarnings("squid:S1698")
     private Expression literalAtom() {
-        if (tokenizer.current().isSymbol("+") && tokenizer.next().isNumber()) {
-            // Parse numbers with a leading + sign like +2.02 by simply ignoring the +
-            tokenizer.consume();
-        }
         if (tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {

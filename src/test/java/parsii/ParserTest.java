@@ -9,12 +9,7 @@
 package parsii;
 
 import org.junit.Test;
-import parsii.eval.BinaryOperation;
-import parsii.eval.Expression;
-import parsii.eval.Function;
-import parsii.eval.Parser;
-import parsii.eval.Scope;
-import parsii.eval.Variable;
+import parsii.eval.*;
 import parsii.tokenizer.ParseException;
 
 import java.util.List;
@@ -68,6 +63,9 @@ public class ParserTest {
     public void signed() throws ParseException {
         assertEquals(-2.02, Parser.parse("-2.02").evaluate(), BinaryOperation.EPSILON);
         assertEquals(2.02, Parser.parse("+2.02").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2.2, Parser.parse("--2.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2.2, Parser.parse("+++2.2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-2.2, Parser.parse("-+--++2.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(1.01, Parser.parse("+2.02 + -1.01").evaluate(), BinaryOperation.EPSILON);
         assertEquals(-4.03, Parser.parse("-2.02 - +2.01").evaluate(), BinaryOperation.EPSILON);
         assertEquals(3.03, Parser.parse("+2.02 + +1.01").evaluate(), BinaryOperation.EPSILON);
@@ -107,6 +105,23 @@ public class ParserTest {
         assertEquals(3.2, Parser.parse("1++2.2").evaluate(), BinaryOperation.EPSILON);
         assertEquals(6 * -1.1, Parser.parse("6*-1.1").evaluate(), BinaryOperation.EPSILON);
         assertEquals(6 * 1.1, Parser.parse("6*+1.1").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void minusPowerPrecedence() throws ParseException {
+        assertEquals(-4.0, Parser.parse("-(2)^2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-4.0, Parser.parse("-2^2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(-2.0, Parser.parse("2-2^2").evaluate(), BinaryOperation.EPSILON);
+    }
+
+    @Test
+    public void stackedExponents() throws ParseException {
+        assertEquals(256.0, Parser.parse("2^2^3").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(256.0, Parser.parse("2^(2^3)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(64.0, Parser.parse("(2^2)^3").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.5, Parser.parse("2^-1^2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.5, Parser.parse("2^-(1^2)").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(2, Parser.parse("2^(-1)^2").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test
