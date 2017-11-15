@@ -8,9 +8,6 @@
 
 package parsii.eval;
 
-import parsii.tokenizer.ParseException;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,10 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * cheap as a simple field access. The second advantage is that scopes can be chained. So variables can be either
  * shared by two expression or kept separate, if required.
  */
-public class Scope implements Serializable {
-    private static final long serialVersionUID = 5741047270427993554L;
+public class Scope {
     private Scope parent;
-    private double defaultValue = 0d;
     private boolean autocreateVariables = true;
     private Map<String, Variable> context = new ConcurrentHashMap<String, Variable>();
 
@@ -71,55 +66,6 @@ public class Scope implements Serializable {
     }
 
     /**
-     * Creates a new empty scope.
-     * <p>
-     * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
-     * defined as constants.
-     * <p>
-     * If an not yet known variable is accessed, it will be created and initialized with 0.
-     *
-     * @return a new scope and empty
-     * @deprecated use plain old java code like {@code new Scope()}
-     */
-    @Deprecated
-    public static Scope create() {
-        return new Scope();
-    }
-
-    /**
-     * Creates a new empty scope which will not autocreate variables.
-     * <p>
-     * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
-     * defined as constants.
-     * <p>
-     * If an not yet known variable is accessed, a {@link ParseException} will be thrown.
-     *
-     * @return a new scope and empty
-     * @deprecated Use plain java like {@code new Scope().withStrictLookup(true)}
-     */
-    @Deprecated
-    public static Scope createStrict() {
-        return new Scope().withStrictLookup(true);
-    }
-
-    /**
-     * Specifies a default value for auto created variables.
-     * <p>
-     * Unless changes, variables are initialized with 0. One could change this i.e. to NaN
-     * to visualize the use of undeclared variables without creating an error.
-     * <p>
-     * Note that this will not change the value of variables which have been created before calling this method.
-     *
-     * @param newDefaultValue the new default value to use when creating yet unknown variables.
-     * @return the instance itself for fluent method calls
-     */
-    public Scope withDefaultValue(double newDefaultValue) {
-        this.defaultValue = newDefaultValue;
-
-        return this;
-    }
-
-    /**
      * Determines if strict lookup should be used or not.
      * <p>
      * A scope with strict lookup will not create unknown variables upon their first access but rather throw an error.
@@ -153,22 +99,6 @@ public class Scope implements Serializable {
         }
 
         return this;
-    }
-
-    /**
-     * Creates a new scope with the given parent.
-     * <p>
-     * If a variable is resolved, first the own scope is scanned. If no variable for the given name is found, the
-     * parent scope is scanned. If this yields a variable, it will be returned. Otherwise it will be defined
-     * in the local scope (not in the parent).
-     *
-     * @param parent the scope to use as lookup source for further variables
-     * @return a new scope with the given parent as super scope
-     * @deprecated Use plain java code like {@code new Scope().withParent(parent)}
-     */
-    @Deprecated
-    public static Scope createWithParent(Scope parent) {
-        return new Scope().withParent(parent);
     }
 
     /**

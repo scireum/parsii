@@ -14,6 +14,7 @@ package parsii.tokenizer;
  * Used by {@link ParseException} to collect as many errors as possible before failing (throwing).
  */
 public class ParseError {
+
     private Position pos;
     private String message;
     private final Severity severity;

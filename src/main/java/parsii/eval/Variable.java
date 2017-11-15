@@ -18,6 +18,7 @@ package parsii.eval;
  * A variable can be made constant, which will fail all further attempts to change it.
  */
 public class Variable {
+
     private double value = 0d;
     private String name;
     private boolean constant = false;

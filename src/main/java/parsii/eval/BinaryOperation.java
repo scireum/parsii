@@ -25,14 +25,14 @@ public class BinaryOperation extends Expression {
         ADD(3), SUBTRACT(3), MULTIPLY(4), DIVIDE(4), MODULO(4), POWER(5), LT(2), LT_EQ(2), EQ(2), GT_EQ(2), GT(2), NEQ(2), AND(
                 1), OR(1);
 
-        public int getPriority() {
-            return priority;
-        }
-
         private final int priority;
 
         Op(int priority) {
             this.priority = priority;
+        }
+
+        public int getPriority() {
+            return priority;
         }
     }
 
@@ -116,53 +116,43 @@ public class BinaryOperation extends Expression {
     }
 
     @Override
+    @SuppressWarnings({"squid:S3776", "squid:MethodCyclomaticComplexity"})
     public double evaluate() {
         double a = left.evaluate();
         double b = right.evaluate();
-        if (op == Op.ADD) {
-            return a + b;
-        }
-        if (op == Op.SUBTRACT) {
-            return a - b;
-        }
-        if (op == Op.MULTIPLY) {
-            return a * b;
-        }
-        if (op == Op.DIVIDE) {
-            return a / b;
-        }
-        if (op == Op.POWER) {
-            return Math.pow(a, b);
-        }
-        if (op == Op.MODULO) {
-            return a % b;
-        }
-        if (op == Op.LT) {
-            return a < b ? 1 : 0;
-        }
-        if (op == Op.LT_EQ) {
-            return a < b || Math.abs(a - b) < EPSILON ? 1 : 0;
-        }
-        if (op == Op.GT) {
-            return a > b ? 1 : 0;
-        }
-        if (op == Op.GT_EQ) {
-            return a > b || Math.abs(a - b) < EPSILON ? 1 : 0;
-        }
-        if (op == Op.EQ) {
-            return Math.abs(a - b) < EPSILON ? 1 : 0;
-        }
-        if (op == Op.NEQ) {
-            return Math.abs(a - b) > EPSILON ? 1 : 0;
-        }
-        if (op == Op.AND) {
-            return Math.abs(a) > 0 && Math.abs(b) > 0 ? 1 : 0;
-        }
-        if (op == Op.OR) {
-            return Math.abs(a) > 0 || Math.abs(b) > 0 ? 1 : 0;
-        }
 
-        throw new UnsupportedOperationException(String.valueOf(op));
+        switch (op) {
+            case ADD:
+                return a + b;
+            case SUBTRACT:
+                return a - b;
+            case MULTIPLY:
+                return a * b;
+            case DIVIDE:
+                return a / b;
+            case POWER:
+                return Math.pow(a, b);
+            case MODULO:
+                return a % b;
+            case LT:
+                return a < b ? 1 : 0;
+            case LT_EQ:
+                return a < b || Math.abs(a - b) < EPSILON ? 1 : 0;
+            case GT:
+                return a > b ? 1 : 0;
+            case GT_EQ:
+                return a > b || Math.abs(a - b) < EPSILON ? 1 : 0;
+            case EQ:
+                return Math.abs(a - b) < EPSILON ? 1 : 0;
+            case NEQ:
+                return Math.abs(a - b) > EPSILON ? 1 : 0;
+            case AND:
+                return Math.abs(a) > 0 && Math.abs(b) > 0 ? 1 : 0;
+            case OR:
+                return Math.abs(a) > 0 || Math.abs(b) > 0 ? 1 : 0;
+            default:
+                throw new UnsupportedOperationException(String.valueOf(op));
+        }
     }
 
     @Override
@@ -184,34 +174,47 @@ public class BinaryOperation extends Expression {
             }
 
             if (right instanceof BinaryOperation) {
-                BinaryOperation childOp = (BinaryOperation) right;
-                if (op == childOp.op) {
-                    // We have a sub-operation with the same operator, let's see if we can pre-compute some constants
-                    if (left.isConstant()) {
-                        // Left side is constant, we therefore can combine constants. We can rely on the constant
-                        // being on the left side, since we reorder commutative operations (see above)
-                        if (childOp.left.isConstant()) {
-                            if (op == Op.ADD) {
-                                return new BinaryOperation(op,
-                                                           new Constant(left.evaluate() + childOp.left.evaluate()),
-                                                           childOp.right);
-                            }
-                            if (op == Op.MULTIPLY) {
-                                return new BinaryOperation(op,
-                                                           new Constant(left.evaluate() * childOp.left.evaluate()),
-                                                           childOp.right);
-                            }
-                        }
-                    } else if (childOp.left.isConstant()) {
-                        // Since our left side is non constant, but the left side of the child expression is,
-                        // we push the constant up, to support further optimizations
-                        return new BinaryOperation(op, childOp.left, new BinaryOperation(op, left, childOp.right));
-                    }
+                Expression childOp = trySimplifyRightSide();
+                if (childOp != null) {
+                    return childOp;
                 }
             }
         }
 
         return super.simplify();
+    }
+
+    private Expression trySimplifyRightSide() {
+        BinaryOperation childOp = (BinaryOperation) right;
+        if (op != childOp.op) {
+            return null;
+        }
+
+        // We have a sub-operation with the same operator, let's see if we can pre-compute some constants
+        if (left.isConstant()) {
+            // Left side is constant, we therefore can combine constants. We can rely on the constant
+            // being on the left side, since we reorder commutative operations (see above)
+            if (childOp.left.isConstant()) {
+                if (op == Op.ADD) {
+                    return new BinaryOperation(op,
+                                               new Constant(left.evaluate() + childOp.left.evaluate()),
+                                               childOp.right);
+                }
+                if (op == Op.MULTIPLY) {
+                    return new BinaryOperation(op,
+                                               new Constant(left.evaluate() * childOp.left.evaluate()),
+                                               childOp.right);
+                }
+            }
+        }
+
+        if (childOp.left.isConstant()) {
+            // Since our left side is non constant, but the left side of the child expression is,
+            // we push the constant up, to support further optimizations
+            return new BinaryOperation(op, childOp.left, new BinaryOperation(op, left, childOp.right));
+        }
+
+        return null;
     }
 
     @Override

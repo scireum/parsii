@@ -259,6 +259,7 @@ public class Token implements Position {
      * @param trigger the expected trigger
      * @return <tt>true</tt> if this token matches the given type and trigger, <tt>false</tt> otherwise
      */
+    @SuppressWarnings("squid:S1698")
     public boolean matches(TokenType type, String trigger) {
         if (!is(type)) {
             return false;
@@ -276,6 +277,7 @@ public class Token implements Position {
      * @param triggers a list of possible triggers to compare to
      * @return <tt>true</tt> if this token was triggered by one of the given triggers, <tt>false</tt> otherwise
      */
+    @SuppressWarnings("squid:S1698")
     public boolean wasTriggeredBy(String... triggers) {
         if (triggers.length == 0) {
             return false;
@@ -389,8 +391,8 @@ public class Token implements Position {
         if (triggers.length == 0) {
             return is(TokenType.SPECIAL_ID);
         }
-        for (String trigger : triggers) {
-            if (matches(TokenType.SPECIAL_ID, trigger)) {
+        for (String possibleTrigger : triggers) {
+            if (matches(TokenType.SPECIAL_ID, possibleTrigger)) {
                 return true;
             }
         }

@@ -147,11 +147,10 @@ public abstract class Lookahead<T> {
             } else {
                 if (endReached) {
                     return;
-                } else {
-                    T item = fetch();
-                    if (item == null) {
-                        endReached = true;
-                    }
+                }
+                T item = fetch();
+                if (item == null) {
+                    endReached = true;
                 }
             }
         }

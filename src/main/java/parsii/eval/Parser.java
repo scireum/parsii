@@ -14,7 +14,6 @@ import parsii.tokenizer.Token;
 import parsii.tokenizer.Tokenizer;
 
 import java.io.Reader;
-import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,26 +40,12 @@ import java.util.TreeMap;
  * System.out.println(expr.evaluate());
  * }
  */
-public class Parser implements Serializable {
+public class Parser {
 
-    private static final long serialVersionUID = 437479083676978701L;
     private final Scope scope;
     private List<ParseError> errors = new ArrayList<ParseError>();
     private Tokenizer tokenizer;
     private static Map<String, Function> functionTable;
-
-    /**
-     * Registers a new function which can be referenced from within an expression.
-     * <p>
-     * A function must be registered before an expression is parsed in order to be visible.
-     *
-     * @param name     the name of the function. If a function with the same name is already available, it will be
-     *                 overridden
-     * @param function the function which is invoked as an expression is evaluated
-     */
-    public static void registerFunction(String name, Function function) {
-        functionTable.put(name, function);
-    }
 
     /*
      * Setup well known functions
@@ -94,6 +79,25 @@ public class Parser implements Serializable {
         registerFunction("rnd", Functions.RND);
         registerFunction("sign", Functions.SIGN);
         registerFunction("if", Functions.IF);
+    }
+
+    protected Parser(Reader input, Scope scope) {
+        this.scope = scope;
+        tokenizer = new Tokenizer(input);
+        tokenizer.setProblemCollector(errors);
+    }
+
+    /**
+     * Registers a new function which can be referenced from within an expression.
+     * <p>
+     * A function must be registered before an expression is parsed in order to be visible.
+     *
+     * @param name     the name of the function. If a function with the same name is already available, it will be
+     *                 overridden
+     * @param function the function which is invoked as an expression is evaluated
+     */
+    public static void registerFunction(String name, Function function) {
+        functionTable.put(name, function);
     }
 
     /**
@@ -144,15 +148,6 @@ public class Parser implements Serializable {
      */
     public static Expression parse(Reader input, Scope scope) throws ParseException {
         return new Parser(input, scope).parse();
-    }
-
-    /*
-     * Use one of the static methods to parse an expression
-     */
-    protected Parser(Reader input, Scope scope) {
-        this.scope = scope;
-        tokenizer = new Tokenizer(input);
-        tokenizer.setProblemCollector(errors);
     }
 
     /**
@@ -392,6 +387,7 @@ public class Parser implements Serializable {
      *
      * @return an atom parsed from the given input
      */
+    @SuppressWarnings("squid:S1698")
     private Expression literalAtom() {
         if (tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
