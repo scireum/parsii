@@ -43,7 +43,7 @@ import java.util.TreeMap;
 public class Parser {
 
     private final Scope scope;
-    private List<ParseError> errors = new ArrayList<ParseError>();
+    private List<ParseError> errors = new ArrayList<>();
     private Tokenizer tokenizer;
     private static Map<String, Function> functionTable;
 
@@ -51,7 +51,7 @@ public class Parser {
      * Setup well known functions
      */
     static {
-        functionTable = new TreeMap<String, Function>();
+        functionTable = new TreeMap<>();
 
         registerFunction("sin", Functions.SIN);
         registerFunction("cos", Functions.COS);

@@ -11,7 +11,7 @@ package parsii.eval;
 /**
  * Represents a reference to a variable.
  */
-public class VariableReference extends Expression {
+public class VariableReference implements Expression {
 
     private Variable var;
 

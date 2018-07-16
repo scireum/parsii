@@ -14,9 +14,7 @@ package parsii.eval;
  * A binary operation has two sub-expressions. A set of supported operations is also defined. If both arguments are
  * constant, simplifying this expression will again lead to a constant expression.
  */
-public class BinaryOperation extends Expression {
-
-    private static final long serialVersionUID = -3811171614568221526L;
+public class BinaryOperation implements Expression {
 
     /**
      * Enumerates the operations supported by this expression.
@@ -181,7 +179,7 @@ public class BinaryOperation extends Expression {
             }
         }
 
-        return super.simplify();
+        return Expression.super.simplify();
     }
 
     private Expression trySimplifyRightSide() {

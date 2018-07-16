@@ -81,15 +81,15 @@ public class Tokenizer extends Lookahead<Token> {
     /*
      * These characters are used to identify the start of a SPECIAL_ID like "$test"
      */
-    private Set<Character> specialIdStarters = new HashSet<Character>();
+    private Set<Character> specialIdStarters = new HashSet<>();
     /*
      * These characters are used to identify the end of a SPECIAL_ID like "test:"
      */
-    private Set<Character> specialIdTerminators = new HashSet<Character>();
+    private Set<Character> specialIdTerminators = new HashSet<>();
     /*
      * Contains keywords which will cause IDs to be converted to KEYWORD if the name matches
      */
-    private Map<String, String> keywords = new IdentityHashMap<String, String>();
+    private Map<String, String> keywords = new IdentityHashMap<>();
     /*
      * Determines if keywords are case sensitive
      */
@@ -98,7 +98,7 @@ public class Tokenizer extends Lookahead<Token> {
      * Contains all characters which are used to delimit a string, and also a second character which is used to
      * escape characters within this string. '\0' means no escaping.
      */
-    private Map<Character, Character> stringDelimiters = new IdentityHashMap<Character, Character>();
+    private Map<Character, Character> stringDelimiters = new IdentityHashMap<>();
 
     /**
      * Creates a new tokenizer for the given input

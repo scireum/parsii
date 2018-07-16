@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Scope {
     private Scope parent;
     private boolean autocreateVariables = true;
-    private Map<String, Variable> context = new ConcurrentHashMap<String, Variable>();
+    private Map<String, Variable> context = new ConcurrentHashMap<>();
 
     private static Scope root;
 
@@ -194,7 +194,7 @@ public class Scope {
         if (parent == null) {
             return getLocalNames();
         }
-        Set<String> result = new TreeSet<String>();
+        Set<String> result = new TreeSet<>();
         result.addAll(parent.getNames());
         result.addAll(getLocalNames());
         return result;
@@ -218,7 +218,7 @@ public class Scope {
         if (parent == null) {
             return getLocalVariables();
         }
-        List<Variable> result = new ArrayList<Variable>();
+        List<Variable> result = new ArrayList<>();
         result.addAll(parent.getVariables());
         result.addAll(getLocalVariables());
         return result;
