@@ -14,6 +14,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import parsii.tokenizer.Token.TokenType;
 
 /**
  * Turns a stream of characters ({@link Reader} into a stream of {@link Token}, supporting lookahead.
@@ -56,6 +57,15 @@ public class Tokenizer extends Lookahead<Token> {
      * Thousand grouping character. Is allowed in any number (at any position) but ignored (not added to the content)
      */
     private char groupingSeparator = '_';
+    /*
+     * Scientific notation separator (e.g. 3e2 = 3*10**2 = 300)
+     */
+    private char scientificNotationSeparator = 'e';
+    private char alternateScientificNotationSeparator = 'E';
+    /*
+     * Scientific notation separator used as output (in the content) when a scientific notation separator was found
+     */
+    private char effectiveScientificNotationSeparator = 'e';
     /*
      * Initiates a line comment
      */
@@ -518,13 +528,16 @@ public class Tokenizer extends Lookahead<Token> {
     protected Token fetchNumber() {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
-        while (input.current().isDigit() || input.current().is(decimalSeparator) || (input.current()
-                                                                                          .is(groupingSeparator)
-                                                                                     && input.next().isDigit())) {
+        while (input.current().isDigit()
+            || input.current().is(decimalSeparator)
+            || (input.current().is(groupingSeparator) && input.next().isDigit())
+            || ((input.current().is(scientificNotationSeparator)
+               || input.current().is(alternateScientificNotationSeparator))
+               && (input.next().isDigit() || input.next().is('+') || input.next().is('-')))) {
             if (input.current().is(groupingSeparator)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(decimalSeparator)) {
-                if (result.is(Token.TokenType.DECIMAL)) {
+                if (result.is(Token.TokenType.DECIMAL) || result.is(TokenType.SCIENTIFIC_DECIMAL)) {
                     problemCollector.add(ParseError.error(input.current(), "Unexpected decimal separators"));
                 } else {
                     Token decimalToken = Token.create(Token.TokenType.DECIMAL, result);
@@ -533,6 +546,20 @@ public class Tokenizer extends Lookahead<Token> {
                     result = decimalToken;
                 }
                 result.addToSource(input.consume());
+            } else if (input.current().is(scientificNotationSeparator)
+                || input.current().is(alternateScientificNotationSeparator)) {
+                if (result.is(TokenType.SCIENTIFIC_DECIMAL)) {
+                    problemCollector.add(ParseError.error(input.current(), "Unexpected scientific notation separators"));
+                } else {
+                    Token scientificDecimalToken = Token.create(TokenType.SCIENTIFIC_DECIMAL, result);
+                    scientificDecimalToken.setContent(result.getContents() + effectiveScientificNotationSeparator);
+                    scientificDecimalToken.setSource(result.getSource() + effectiveScientificNotationSeparator);
+                    result = scientificDecimalToken;
+                    input.consume();
+                    if (input.current().is('+') || input.current().is('-')){
+                        result.addToContent(input.consume());
+                    }
+                }
             } else {
                 result.addToContent(input.consume());
             }

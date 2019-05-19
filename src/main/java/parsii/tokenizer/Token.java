@@ -29,6 +29,7 @@ package parsii.tokenizer;
  * <li>SPECIAL_ID: Represents an id which starts with a special character like $ or # and continues with an id</li>
  * <li>STRING: Represents a string constant</li>
  * <li>DECIMAL: Represents a decimal constant</li>
+ * <li>SCIENTIFIC_DECIMAL: Represents a decimal constant with a scientific notation</li>
  * <li>INTEGER: Represents an integer constant</li>
  * <li>SYMBOL: Represents any combination of "special" chars like + - ** etc. This will also be all bracket</li>
  * <li>KEYWORD: Represents an ID which was identified as a keyword</li>
@@ -41,7 +42,7 @@ public class Token implements Position {
      * Contains the different token types supported by this class.
      */
     public enum TokenType {
-        ID, SPECIAL_ID, STRING, DECIMAL, INTEGER, SYMBOL, KEYWORD, EOI
+        ID, SPECIAL_ID, STRING, DECIMAL, SCIENTIFIC_DECIMAL, INTEGER, SYMBOL, KEYWORD, EOI
     }
 
     private TokenType type;
@@ -443,12 +444,21 @@ public class Token implements Position {
     }
 
     /**
+     * Determines if this token is a scientific decimal number (e.g. 3.2e5).
+     *
+     * @return <tt>true</tt> if this token is a scientific decimal number, <tt>false</tt> otherwise
+     */
+    public boolean isScientificDecimal() {
+        return is(TokenType.SCIENTIFIC_DECIMAL);
+    }
+
+    /**
      * Determines if this token is an integer or decimal number.
      *
      * @return <tt>true</tt> if this token is an integer or decimal number, <tt>false</tt> otherwise
      */
     public boolean isNumber() {
-        return isInteger() || isDecimal();
+        return isInteger() || isDecimal() || isScientificDecimal();
     }
 
     /**

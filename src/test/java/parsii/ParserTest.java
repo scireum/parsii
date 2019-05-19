@@ -49,6 +49,16 @@ public class ParserTest {
     @Test
     public void number() throws ParseException {
         assertEquals(4003.333333d, Parser.parse("3.333_333+4_000").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.03, Parser.parse("3e-2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(300d, Parser.parse("3e2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(300d, Parser.parse("3e+2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(320d, Parser.parse("3.2e2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.032, Parser.parse("3.2e-2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.03, Parser.parse("3E-2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(300d, Parser.parse("3E2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(300d, Parser.parse("3E+2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(320d, Parser.parse("3.2E2").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(0.032, Parser.parse("3.2E-2").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test
@@ -62,6 +72,8 @@ public class ParserTest {
         assertEquals(0d, Parser.parse("3 > 4*4").evaluate(), BinaryOperation.EPSILON);
         // brackets
         assertEquals(28d, Parser.parse("(3 + 4) * 4").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(304d, Parser.parse("3e2 + 4").evaluate(), BinaryOperation.EPSILON);
+        assertEquals(1200d, Parser.parse("3e2 * 4").evaluate(), BinaryOperation.EPSILON);
     }
 
     @Test
@@ -212,6 +224,30 @@ public class ParserTest {
         } catch (ParseException e) {
             assertEquals(1, e.getErrors().size());
         }
+
+        // We expect the parser to report an unexpected separator.
+        try {
+            Parser.parse("3ee3");
+            assertTrue(false);
+        } catch (ParseException e) {
+            assertEquals(1, e.getErrors().size());
+        }
+
+        // We expect the parser to report an unexpected separator.
+        try {
+            Parser.parse("3e3.3");
+            assertTrue(false);
+        } catch (ParseException e) {
+            assertEquals(1, e.getErrors().size());
+        }
+
+        // We expect the parser to report an unexpected token.
+        try {
+            Parser.parse("3e");
+            assertTrue(false);
+        } catch (ParseException e) {
+            assertEquals(1, e.getErrors().size());
+        }
     }
 
     @Test
@@ -235,14 +271,16 @@ public class ParserTest {
     @Test
     public void getVariables() throws ParseException {
         Scope s = new Scope();
-        Parser.parse("a*b+c", s);
+        Parser.parse("a*b+c+e+wer", s);
         assertTrue(s.getNames().contains("a"));
         assertTrue(s.getNames().contains("b"));
         assertTrue(s.getNames().contains("c"));
+        assertTrue(s.getNames().contains("e"));
+        assertTrue(s.getNames().contains("wer"));
         assertFalse(s.getNames().contains("x"));
 
         // pi and euler are always defined...
-        assertEquals(5, s.getVariables().size());
+        assertEquals(7, s.getVariables().size());
     }
 
     @Test
