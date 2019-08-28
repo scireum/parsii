@@ -11,4 +11,12 @@
     <name>parsii</name>
     <description>parsii is a super fast and lightweight parser and expression evaluator</description>
     <url>https://github.com/scireum/parsii</url>
+
+    <repositories>
+        <repository>
+            <id>scireum-mvn</id>
+            <url>https://mvn.scireum.com</url>
+        </repository>
+    </repositories>
+
 </project>
