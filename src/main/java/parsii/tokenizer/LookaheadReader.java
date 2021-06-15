@@ -20,7 +20,7 @@ import java.io.Reader;
  */
 public class LookaheadReader extends Lookahead<Char> {
 
-    private Reader input;
+    private final Reader input;
     private int line = 1;
     private int pos = 0;
 

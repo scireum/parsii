@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.scireum</groupId>
         <artifactId>sirius-parent</artifactId>
-        <version>6.1</version>
+        <version>8.0.1</version>
     </parent>
     <artifactId>parsii</artifactId>
     <version>DEVELOPMENT-SNAPSHOT</version>

@@ -23,11 +23,9 @@ import static org.junit.Assert.*;
 
 /**
  * Tests the {@link Parser} class.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2013/09
  */
 public class ParserTest {
+
     @Test
     public void simple() throws ParseException {
         assertEquals(-109d, Parser.parse("1 - (10 - -100)").evaluate(), BinaryOperation.EPSILON);

@@ -19,24 +19,24 @@ import parsii.tokenizer.Token.TokenType;
 /**
  * Turns a stream of characters ({@link Reader} into a stream of {@link Token}, supporting lookahead.
  * <p>
- * Reads from the given input and parses it into a stream of tokens. By default all token types defined by
+ * Reads from the given input and parses it into a stream of tokens. By default, all token types defined by
  * {@link Token} are supported. Most of the features can be further tweaked by changing the default settings.
  * <p>
  * By default the tokenizer operates as follows:
  * <ul>
- * <li>Consume and ignore any whitespace characters (see {@link Char#isWhitepace()}</li>
+ * <li>Consume and ignore any whitespace characters (see {@link Char#isWhitespace()}</li>
  * <li>If the current character starts a line comment, read until the end of the line and ignore all characters
  * consumed.</li>
  * <li>If the current character starts a block comment, read until and end of block comment is detected.</li>
  * <li>If the current character is a digit, parse a INTEGER, if a decimal separator is found, switch over to a DECIMAL
- * (see {@link Char#isDigit()}. Also if the current character is a '-' and the next is a digit, we try to read
+ * (see {@link Char#isDigit()}. Also, if the current character is a '-', and the next is a digit, we try to read
  * a number.</li>
  * <li>If the current character is a letter, parse an ID (see {@link Char#isLetter()}. Once this is complete, check if
  * the ID matches one of the supplied keywords, and convert if necessary.</li>
- * <li>If the current character is an opening or closing bracket, a SYMBOL for that single character is returned</li>
+ * <li>If the current character is an opening or a closing bracket, a SYMBOL for that single character is returned</li>
  * <li>If the current character is one of the special id starters, all valid ID characters
  * ({@link #isIdentifierChar(Char)} are consumed and returned as SPECIAL_ID</li>
- * <li>All other characters, especially all operators, will be read and returned as one SYMBOL. Therefore <tt>#++*</tt>
+ * <li>All other characters, especially all operators, will be read and returned as one SYMBOL. Therefore, <tt>#++*</tt>
  * will be returned as a single symbol.</li>
  * </ul>
  */
@@ -82,7 +82,7 @@ public class Tokenizer extends Lookahead<Token> {
      * All supported brackets. For obvious reasons, several brackets like (( are treated as two symbols, rather than
      * operators like ** which will create one symbol
      */
-    private char[] brackets = {'(', '[', '{', '}', ']', ')'};
+    private final char[] brackets = {'(', '[', '{', '}', ']', ')'};
     /*
      * Determines if a single pipe (this: | ) will be treated as bracket. This could can be used like | a - b |
      * However || will be handled as symbol with two characters, as it is often used as "or".
@@ -139,7 +139,7 @@ public class Tokenizer extends Lookahead<Token> {
     @Override
     protected Token fetch() {
         // Fetch and ignore any whitespace
-        while (input.current().isWhitepace()) {
+        while (input.current().isWhitespace()) {
             input.consume();
         }
 
@@ -503,7 +503,7 @@ public class Tokenizer extends Lookahead<Token> {
      */
     @SuppressWarnings("squid:S1067")
     protected boolean isSymbolCharacter(Char ch) {
-        if (ch.isEndOfInput() || ch.isDigit() || ch.isLetter() || ch.isWhitepace()) {
+        if (ch.isEndOfInput() || ch.isDigit() || ch.isLetter() || ch.isWhitespace()) {
             return false;
         }
 
