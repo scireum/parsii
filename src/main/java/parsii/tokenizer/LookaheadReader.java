@@ -51,12 +51,12 @@ public class LookaheadReader extends Lookahead<Char> {
             if (character == -1) {
                 return null;
             }
+            Char result = new Char((char) character, line, pos++);
             if (character == '\n') {
                 line++;
                 pos = 0;
             }
-            pos++;
-            return new Char((char) character, line, pos);
+            return result;
         } catch (IOException e) {
             problemCollector.add(ParseError.error(new Char('\0', line, pos), e.getMessage()));
             return null;
