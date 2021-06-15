@@ -8,6 +8,9 @@
 
 package parsii.tokenizer;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 /**
  * Represents a token of text read from a {@link Tokenizer}.
  * <p>
@@ -269,7 +272,7 @@ public class Token implements Position {
             throw new IllegalArgumentException("trigger must not be null");
         }
 
-        return getTrigger() == trigger.intern();
+        return Objects.equals(getTrigger(), trigger.intern());
     }
 
     /**
@@ -278,18 +281,8 @@ public class Token implements Position {
      * @param triggers a list of possible triggers to compare to
      * @return <tt>true</tt> if this token was triggered by one of the given triggers, <tt>false</tt> otherwise
      */
-    @SuppressWarnings("squid:S1698")
     public boolean wasTriggeredBy(String... triggers) {
-        if (triggers.length == 0) {
-            return false;
-        }
-        for (String aTrigger : triggers) {
-            if (aTrigger != null && aTrigger.intern() == getTrigger()) {
-                return true;
-            }
-        }
-
-        return false;
+        return Stream.of(triggers).filter(Objects::nonNull).anyMatch(trigger -> Objects.equals(trigger, getTrigger()));
     }
 
     /**
