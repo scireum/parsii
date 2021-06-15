@@ -17,9 +17,10 @@ package parsii.tokenizer;
  * @see LookaheadReader
  */
 public class Char implements Position {
-    private char value;
-    private int line;
-    private int pos;
+
+    private final char value;
+    private final int line;
+    private final int pos;
 
     Char(char value, int line, int pos) {
         this.value = value;
@@ -69,7 +70,7 @@ public class Char implements Position {
      *
      * @return <tt>true</tt> if the internal value is a whitespace character, <tt>false</tt> otherwise
      */
-    public boolean isWhitepace() {
+    public boolean isWhitespace() {
         return Character.isWhitespace(value) && !isEndOfInput();
     }
 

@@ -20,7 +20,7 @@ import java.io.Reader;
  */
 public class LookaheadReader extends Lookahead<Char> {
 
-    private Reader input;
+    private final Reader input;
     private int line = 1;
     private int pos = 0;
 
@@ -51,12 +51,12 @@ public class LookaheadReader extends Lookahead<Char> {
             if (character == -1) {
                 return null;
             }
+            Char result = new Char((char) character, line, pos++);
             if (character == '\n') {
                 line++;
                 pos = 0;
             }
-            pos++;
-            return new Char((char) character, line, pos);
+            return result;
         } catch (IOException e) {
             problemCollector.add(ParseError.error(new Char('\0', line, pos), e.getMessage()));
             return null;

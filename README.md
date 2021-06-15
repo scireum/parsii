@@ -1,8 +1,4 @@
-parsii
-======
-
-If you have questions or are just curious, please feel welcome to join the chat room:
-[![Join the chat at https://gitter.im/scireum/sirius-kernel](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scireum/OpenSource?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# parsii
 
 Super fast and simple evaluator for mathematical expressions written in Java. More background information can be found in this blog post: http://andreas.haufler.info/2013/12/how-to-write-one-of-fastest-expression.html
 
@@ -25,11 +21,11 @@ Check out or micro kernel called SIRIUS: https://github.com/scireum/sirius
 
 ## Maven
 
-parsii is available under:
+parsii is available under [https://mvn.scireum.com](https://mvn.scireum.com).
 
     <dependency>
       <groupId>com.scireum</groupId>
       <artifactId>parsii</artifactId>
-      <version>1.5</version>
+      <version>...</version>
     </dependency>
 
