@@ -1,45 +1,63 @@
+---
+scireum_volumes: &scireum_volumes
+  - name: docker_socket
+    path: /var/run/docker.sock
+  - name: m2
+    path: /root/.m2
+
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
 clone:
-  git:
-    image: plugins/git
-    volumes:
-    - /var/repos/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}:/drone/src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
-pipeline:
-  compile:
+  depth: 1
+
+steps:
+  - name: compile
     image: scireum/sirius-build
     commands:
       - mvn clean compile
-    volumes:
-      - /root/.m2:/root/.m2
-      - /var/repos/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}:/drone/src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    volumes: *scireum_volumes
     when:
-      event: push
-  test:
+      event:
+      - push
+
+  - name: test
     image: scireum/sirius-build
     commands:
       - mvn clean test
-    volumes:
-      - /root/.m2:/root/.m2
-      - /var/repos/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}:/drone/src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    volumes: *scireum_volumes
     when:
-      event: pull_request
-  sonar:
+      event:
+      - pull_request
+
+  - name: sonar
     image: scireum/sirius-build
     commands:
       - sed -i 's/DEVELOPMENT-SNAPSHOT/${DRONE_TAG}/g' pom.xml
       - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent test sonar:sonar -Dsonar.projectKey=${DRONE_REPO_NAME}
-    volumes:
-      - /root/.m2:/root/.m2
-      - /var/repos/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}:/drone/src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    volumes: *scireum_volumes
     when:
-      event: tag
-  deploy:
+      event:
+        - tag
+
+  - name: deploy
     image: scireum/sirius-build
     commands:
       - sed -i 's/DEVELOPMENT-SNAPSHOT/${DRONE_TAG}/g' pom.xml
       - mvn clean deploy -DskipTests
-    volumes:
-      - /root/.m2:/root/.m2
-      - /root/.gnupg:/root/.gnupg
-      - /var/repos/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}:/drone/src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    volumes: *scireum_volumes
     when:
-      event: tag
+      event:
+      - tag
+
+volumes:
+  - name: docker_socket
+    host:
+      path: /var/run/docker.sock
+  - name: m2
+    host:
+      path: /root/.m2
