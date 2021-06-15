@@ -51,7 +51,7 @@ public class LookaheadReader extends Lookahead<Char> {
             if (character == -1) {
                 return null;
             }
-            Char result = new Char((char) character, line, pos++);
+            Char result = new Char((char) character, line, ++pos);
             if (character == '\n') {
                 line++;
                 pos = 0;
