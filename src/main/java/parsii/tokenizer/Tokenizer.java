@@ -139,7 +139,7 @@ public class Tokenizer extends Lookahead<Token> {
     @Override
     protected Token fetch() {
         // Fetch and ignore any whitespace
-        while (input.current().isWhitepace()) {
+        while (input.current().isWhitespace()) {
             input.consume();
         }
 
@@ -503,7 +503,7 @@ public class Tokenizer extends Lookahead<Token> {
      */
     @SuppressWarnings("squid:S1067")
     protected boolean isSymbolCharacter(Char ch) {
-        if (ch.isEndOfInput() || ch.isDigit() || ch.isLetter() || ch.isWhitepace()) {
+        if (ch.isEndOfInput() || ch.isDigit() || ch.isLetter() || ch.isWhitespace()) {
             return false;
         }
 
