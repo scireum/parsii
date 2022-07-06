@@ -43,9 +43,9 @@ import java.util.TreeMap;
 public class Parser {
 
     private final Scope scope;
-    private List<ParseError> errors = new ArrayList<>();
-    private Tokenizer tokenizer;
-    private static Map<String, Function> functionTable;
+    private final List<ParseError> errors = new ArrayList<>();
+    private final Tokenizer tokenizer;
+    private static final Map<String, Function> functionTable;
 
     /*
      * Setup well known functions
@@ -255,11 +255,9 @@ public class Parser {
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
-        if (tokenizer.current().isNumber()) {
-            if (tokenizer.current().getContents().startsWith("-")) {
-                Expression right = term();
-                return reOrder(left, right, BinaryOperation.Op.ADD);
-            }
+        if (tokenizer.current().isNumber() && tokenizer.current().getContents().startsWith("-")) {
+            Expression right = term();
+            return reOrder(left, right, BinaryOperation.Op.ADD);
         }
 
         return left;
@@ -297,23 +295,21 @@ public class Parser {
      * in natural order (from left to right).
      */
     protected Expression reOrder(Expression left, Expression right, BinaryOperation.Op op) {
-        if (right instanceof BinaryOperation) {
-            BinaryOperation rightOp = (BinaryOperation) right;
-            if (!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
-                replaceLeft(rightOp, left, op);
-                return right;
-            }
+        if (right instanceof BinaryOperation rightOp
+            && !rightOp.isSealed()
+            && rightOp.getOp().getPriority() == op.getPriority()) {
+            replaceLeft(rightOp, left, op);
+            return right;
         }
         return new BinaryOperation(op, left, right);
     }
 
     protected void replaceLeft(BinaryOperation target, Expression newLeft, BinaryOperation.Op op) {
-        if (target.getLeft() instanceof BinaryOperation) {
-            BinaryOperation leftOp = (BinaryOperation) target.getLeft();
-            if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
-                replaceLeft(leftOp, newLeft, op);
-                return;
-            }
+        if (target.getLeft() instanceof BinaryOperation leftOp
+            && !leftOp.isSealed()
+            && leftOp.getOp().getPriority() == op.getPriority()) {
+            replaceLeft(leftOp, newLeft, op);
+            return;
         }
         target.setLeft(new BinaryOperation(op, newLeft, target.getLeft()));
     }
@@ -405,23 +401,23 @@ public class Parser {
         if (tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {
-                String quantifier = tokenizer.current().getContents().intern();
-                if ("n" == quantifier) {
+                String quantifier = tokenizer.current().getContents();
+                if ("n".equals(quantifier)) {
                     value /= 1000000000d;
                     tokenizer.consume();
-                } else if ("u" == quantifier) {
+                } else if ("u".equals(quantifier)) {
                     value /= 1000000d;
                     tokenizer.consume();
-                } else if ("m" == quantifier) {
+                } else if ("m".equals(quantifier)) {
                     value /= 1000d;
                     tokenizer.consume();
-                } else if ("K" == quantifier || "k" == quantifier) {
+                } else if ("K".equals(quantifier) || "k".equals(quantifier)) {
                     value *= 1000d;
                     tokenizer.consume();
-                } else if ("M" == quantifier) {
+                } else if ("M".equals(quantifier)) {
                     value *= 1000000d;
                     tokenizer.consume();
-                } else if ("G" == quantifier) {
+                } else if ("G".equals(quantifier)) {
                     value *= 1000000000d;
                     tokenizer.consume();
                 } else {

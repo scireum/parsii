@@ -282,7 +282,7 @@ public class Token implements Position {
      * @return <tt>true</tt> if this token was triggered by one of the given triggers, <tt>false</tt> otherwise
      */
     public boolean wasTriggeredBy(String... triggers) {
-        return Stream.of(triggers).filter(Objects::nonNull).anyMatch(trigger -> Objects.equals(trigger, getTrigger()));
+        return Stream.of(triggers).filter(Objects::nonNull).anyMatch(aTrigger -> Objects.equals(aTrigger, getTrigger()));
     }
 
     /**

@@ -20,8 +20,8 @@ public class BinaryOperation implements Expression {
      * Enumerates the operations supported by this expression.
      */
     public enum Op {
-        ADD(3), SUBTRACT(3), MULTIPLY(4), DIVIDE(4), MODULO(4), POWER(5), LT(2), LT_EQ(2), EQ(2), GT_EQ(2), GT(2), NEQ(2), AND(
-                1), OR(1);
+        ADD(3), SUBTRACT(3), MULTIPLY(4), DIVIDE(4), MODULO(4), POWER(5), LT(2), LT_EQ(2), EQ(2), GT_EQ(2), GT(2),
+        NEQ(2), AND(1), OR(1);
 
         private final int priority;
 
@@ -189,25 +189,19 @@ public class BinaryOperation implements Expression {
         }
 
         // We have a sub-operation with the same operator, let's see if we can pre-compute some constants
-        if (left.isConstant()) {
+        if (left.isConstant() && childOp.left.isConstant()) {
             // Left side is constant, we therefore can combine constants. We can rely on the constant
             // being on the left side, since we reorder commutative operations (see above)
-            if (childOp.left.isConstant()) {
-                if (op == Op.ADD) {
-                    return new BinaryOperation(op,
-                                               new Constant(left.evaluate() + childOp.left.evaluate()),
-                                               childOp.right);
-                }
-                if (op == Op.MULTIPLY) {
-                    return new BinaryOperation(op,
-                                               new Constant(left.evaluate() * childOp.left.evaluate()),
-                                               childOp.right);
-                }
+            if (op == Op.ADD) {
+                return new BinaryOperation(op, new Constant(left.evaluate() + childOp.left.evaluate()), childOp.right);
+            }
+            if (op == Op.MULTIPLY) {
+                return new BinaryOperation(op, new Constant(left.evaluate() * childOp.left.evaluate()), childOp.right);
             }
         }
 
         if (childOp.left.isConstant()) {
-            // Since our left side is non constant, but the left side of the child expression is,
+            // Since our left side is non-constant, but the left side of the child expression is,
             // we push the constant up, to support further optimizations
             return new BinaryOperation(op, childOp.left, new BinaryOperation(op, left, childOp.right));
         }

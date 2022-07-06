@@ -8,13 +8,14 @@
 
 package parsii.tokenizer;
 
+import parsii.tokenizer.Token.TokenType;
+
 import java.io.Reader;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import parsii.tokenizer.Token.TokenType;
 
 /**
  * Turns a stream of characters ({@link Reader} into a stream of {@link Token}, supporting lookahead.
@@ -54,7 +55,7 @@ public class Tokenizer extends Lookahead<Token> {
      */
     private char effectiveDecimalSeparator = '.';
     /*
-     * Thousand grouping character. Is allowed in any number (at any position) but ignored (not added to the content)
+     * "Thousand" grouping character. Is allowed in any number (at any position) but ignored (not added to the content)
      */
     private char groupingSeparator = '_';
     /*
@@ -62,10 +63,6 @@ public class Tokenizer extends Lookahead<Token> {
      */
     private char scientificNotationSeparator = 'e';
     private char alternateScientificNotationSeparator = 'E';
-    /*
-     * Scientific notation separator used as output (in the content) when a scientific notation separator was found
-     */
-    private char effectiveScientificNotationSeparator = 'e';
     /*
      * Initiates a line comment
      */
@@ -84,22 +81,22 @@ public class Tokenizer extends Lookahead<Token> {
      */
     private final char[] brackets = {'(', '[', '{', '}', ']', ')'};
     /*
-     * Determines if a single pipe (this: | ) will be treated as bracket. This could can be used like | a - b |
+     * Determines if a single pipe (this: | ) will be treated as bracket. This could be used like | a - b |
      * However || will be handled as symbol with two characters, as it is often used as "or".
      */
     private boolean treatSinglePipeAsBracket = true;
     /*
      * These characters are used to identify the start of a SPECIAL_ID like "$test"
      */
-    private Set<Character> specialIdStarters = new HashSet<>();
+    private final Set<Character> specialIdStarters = new HashSet<>();
     /*
      * These characters are used to identify the end of a SPECIAL_ID like "test:"
      */
-    private Set<Character> specialIdTerminators = new HashSet<>();
+    private final Set<Character> specialIdTerminators = new HashSet<>();
     /*
      * Contains keywords which will cause IDs to be converted to KEYWORD if the name matches
      */
-    private Map<String, String> keywords = new IdentityHashMap<>();
+    private final Map<String, String> keywords = new IdentityHashMap<>();
     /*
      * Determines if keywords are case sensitive
      */
@@ -108,7 +105,7 @@ public class Tokenizer extends Lookahead<Token> {
      * Contains all characters which are used to delimit a string, and also a second character which is used to
      * escape characters within this string. '\0' means no escaping.
      */
-    private Map<Character, Character> stringDelimiters = new IdentityHashMap<>();
+    private final Map<Character, Character> stringDelimiters = new IdentityHashMap<>();
 
     /**
      * Creates a new tokenizer for the given input
@@ -227,7 +224,7 @@ public class Tokenizer extends Lookahead<Token> {
     /**
      * Determines if the underlying input is looking at a bracket.
      * <p>
-     * By default all supplied <tt>brackets</tt> are checked. If <tt>treatSinglePipeAsBracket</tt> is true, a
+     * By default, all supplied <tt>brackets</tt> are checked. If <tt>treatSinglePipeAsBracket</tt> is true, a
      * single '|' is also treated as bracket.
      *
      * @param inSymbol determines if we're already parsing a symbol or just trying to decide what the next token is
@@ -528,43 +525,68 @@ public class Tokenizer extends Lookahead<Token> {
     protected Token fetchNumber() {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
-        while (input.current().isDigit()
-            || input.current().is(decimalSeparator)
-            || (input.current().is(groupingSeparator) && input.next().isDigit())
-            || ((input.current().is(scientificNotationSeparator)
-               || input.current().is(alternateScientificNotationSeparator))
-               && (input.next().isDigit() || input.next().is('+') || input.next().is('-')))) {
+        while (isAtNumericCharacter()) {
             if (input.current().is(groupingSeparator)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(decimalSeparator)) {
-                if (result.is(Token.TokenType.DECIMAL) || result.is(TokenType.SCIENTIFIC_DECIMAL)) {
-                    problemCollector.add(ParseError.error(input.current(), "Unexpected decimal separators"));
-                } else {
-                    Token decimalToken = Token.create(Token.TokenType.DECIMAL, result);
-                    decimalToken.setContent(result.getContents() + effectiveDecimalSeparator);
-                    decimalToken.setSource(result.getSource());
-                    result = decimalToken;
-                }
-                result.addToSource(input.consume());
-            } else if (input.current().is(scientificNotationSeparator)
-                || input.current().is(alternateScientificNotationSeparator)) {
-                if (result.is(TokenType.SCIENTIFIC_DECIMAL)) {
-                    problemCollector.add(ParseError.error(input.current(), "Unexpected scientific notation separators"));
-                } else {
-                    Token scientificDecimalToken = Token.create(TokenType.SCIENTIFIC_DECIMAL, result);
-                    scientificDecimalToken.setContent(result.getContents() + effectiveScientificNotationSeparator);
-                    scientificDecimalToken.setSource(result.getSource() + effectiveScientificNotationSeparator);
-                    result = scientificDecimalToken;
-                    input.consume();
-                    if (input.current().is('+') || input.current().is('-')){
-                        result.addToContent(input.consume());
-                    }
-                }
+                result = handleDecimalSeparatorInNumber(result);
+            } else if (input.current().is(scientificNotationSeparator) || input.current()
+                                                                               .is(alternateScientificNotationSeparator)) {
+                result = handleScientificSeparatorInNumber(result);
             } else {
                 result.addToContent(input.consume());
             }
         }
 
+        return result;
+    }
+
+    private boolean isAtNumericCharacter() {
+        return input.current().isDigit()
+               || input.current().is(decimalSeparator)
+               || isAtEligibleGroupingSeparator()
+               || isAtEligibleScientificSeparator();
+    }
+
+    private boolean isAtEligibleGroupingSeparator() {
+        return input.current().is(groupingSeparator) && input.next().isDigit();
+    }
+
+    private boolean isAtEligibleScientificSeparator() {
+        if (input.current().is(scientificNotationSeparator) || input.current()
+                                                                    .is(alternateScientificNotationSeparator)) {
+            return input.next().isDigit() || input.next().is('+') || input.next().is('-');
+        }
+
+        return false;
+    }
+
+    private Token handleDecimalSeparatorInNumber(Token result) {
+        if (result.is(TokenType.DECIMAL) || result.is(TokenType.SCIENTIFIC_DECIMAL)) {
+            problemCollector.add(ParseError.error(input.current(), "Unexpected decimal separators"));
+        } else {
+            Token decimalToken = Token.create(TokenType.DECIMAL, result);
+            decimalToken.setContent(result.getContents() + effectiveDecimalSeparator);
+            decimalToken.setSource(result.getSource());
+            result = decimalToken;
+        }
+        result.addToSource(input.consume());
+        return result;
+    }
+
+    private Token handleScientificSeparatorInNumber(Token result) {
+        if (result.is(TokenType.SCIENTIFIC_DECIMAL)) {
+            problemCollector.add(ParseError.error(input.current(), "Unexpected scientific notation separators"));
+        } else {
+            Token scientificDecimalToken = Token.create(TokenType.SCIENTIFIC_DECIMAL, result);
+            scientificDecimalToken.setContent(result.getContents() + scientificNotationSeparator);
+            scientificDecimalToken.setSource(result.getSource() + scientificNotationSeparator);
+            result = scientificDecimalToken;
+            input.consume();
+            if (input.current().is('+') || input.current().is('-')) {
+                result.addToContent(input.consume());
+            }
+        }
         return result;
     }
 
@@ -716,6 +738,67 @@ public class Tokenizer extends Lookahead<Token> {
      */
     public void setGroupingSeparator(char groupingSeparator) {
         this.groupingSeparator = groupingSeparator;
+    }
+
+    /**
+     * Determines the character used to use for scientific notation of number.
+     * <p>
+     * By default, this is 'e'.
+     *
+     * @return the character used to mark scientific numbers
+     */
+    public char getScientificNotationSeparator() {
+        return scientificNotationSeparator;
+    }
+
+    /**
+     * Sets the character used to mark scientific number.
+     *
+     * @param scientificNotationSeparator the character to use.
+     */
+    public void setScientificNotationSeparator(char scientificNotationSeparator) {
+        this.scientificNotationSeparator = scientificNotationSeparator;
+    }
+
+    /**
+     * Determines the alternative character used to use for scientific notation of number.
+     * <p>
+     * By default, this is 'E'.
+     *
+     * @return the character used to mark scientific numbers
+     */
+    public char getAlternateScientificNotationSeparator() {
+        return alternateScientificNotationSeparator;
+    }
+
+    /**
+     * Sets the alternative character used to mark scientific number.
+     *
+     * @param alternateScientificNotationSeparator the character to use.
+     */
+    public void setAlternateScientificNotationSeparator(char alternateScientificNotationSeparator) {
+        this.alternateScientificNotationSeparator = alternateScientificNotationSeparator;
+    }
+
+    /**
+     * Determines if pipes are treat like brackets.
+     * <p>
+     * If this is enabled, {@code | 2 + 2 |} is the same as {@code (2 + 2)}. This can be used to implement
+     * {@code | x | } as {@code abs(x)}.
+     *
+     * @return <tt>true</tt> if pipes are treat as brackets,  <tt>false</tt> otherwise
+     */
+    public boolean isTreatSinglePipeAsBracket() {
+        return treatSinglePipeAsBracket;
+    }
+
+    /**
+     * Specifies if pipes are treat as brackets.
+     *
+     * @param treatSinglePipeAsBracket <tt>true</tt> to treat pipes as bracked, <tt>false</tt> otherwise
+     */
+    public void setTreatSinglePipeAsBracket(boolean treatSinglePipeAsBracket) {
+        this.treatSinglePipeAsBracket = treatSinglePipeAsBracket;
     }
 
     /**
